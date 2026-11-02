@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adore Page</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script>
+/* Compatibility guard: some drawing code may pass the non-standard value "alphabetical". */
+(function () {
+  try {
+    const proto = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
+    if (!proto) return;
+    const desc = Object.getOwnPropertyDescriptor(proto, 'textBaseline');
+    if (!desc || !desc.get || !desc.set || !desc.configurable) return;
+    Object.defineProperty(proto, 'textBaseline', {
+      configurable: desc.configurable, enumerable: desc.enumerable,
+      get: desc.get,
+      set: function (value) { return desc.set.call(this, value === 'alphabetical' ? 'alphabetic' : value); }
+    });
+  } catch (e) { console.warn('Canvas baseline compatibility patch was not applied:', e); }
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/lucide@0.383.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+</head><body>
+<header id="topbar">
+  <div id="brand"><img id="adoreLogo" src="assets/adore-logo.png" alt="Adore" title="Adore"><b>Adore Page</b></div>
+  <nav id="menubar" aria-label="Application menus">
+    <details class="menu"><summary>File</summary><div class="menu-items"><button data-act="pickFile" data-arg="import">Import…</button><button data-act="saveProject">Save project</button><button data-act="pickFile" data-arg="project">Open project…</button><hr><button data-act="exportDocx">Export Word (.docx, editable)</button><button data-act="exportPdf">Export PDF (text, 2 cm margins)</button><button data-act="exportPdfExact">Export PDF (exact page layout)</button><button data-act="exportPptx">Export PowerPoint (.pptx)</button><button data-act="exportIdml">Export InDesign (.idml)</button><button data-act="exportPng">Export PNG pages (.zip)</button><hr><button data-act="pasteTableDialog">Paste table from Word / Excel…</button></div></details>
+    <details class="menu"><summary>Edit</summary><div class="menu-items"><button data-act="undo">Undo</button><button data-act="redo">Redo</button><button data-act="copy">Copy</button><button data-act="paste">Paste</button><button data-act="pasteTableDialog">Paste table from Word / Excel / PowerPoint…</button><button data-act="deleteSel">Delete</button></div></details>
+    <details class="menu"><summary>View</summary><div class="menu-items"><button data-act="zoomFit">Fit page</button><button data-act="zoomIn">Zoom in</button><button data-act="zoomOut">Zoom out</button><button data-act="toggleScroll">Toggle scroll view</button><hr><button data-act="theme" data-arg="light">White screen</button><button data-act="theme" data-arg="dark">Black screen</button></div></details>
+    <details class="menu"><summary>Layout</summary><div class="menu-items"><button data-act="addPage">Add page</button><button data-act="resetLayout">Reset default text positions</button><button data-act="resetGuides">Reset margin and bleed</button><button data-act="focusLeft">Margins…</button></div></details>
+    <details class="menu"><summary>Object</summary><div class="menu-items"><button data-act="addShape" data-arg="rect">Insert rectangle</button><button data-act="addText">Insert text box</button><button data-act="addTable">Insert table…</button><button data-act="openDialog">Text wrap…</button><button data-act="distribute" data-arg="spaceH">Distribute horizontally</button><button data-act="distribute" data-arg="spaceV">Distribute vertically</button><button data-act="centerPage">Center object</button></div></details>
+    <details class="menu"><summary>Type</summary><div class="menu-items"><button data-act="addText">Insert text</button><button data-act="resetLayout">Reset text positions</button></div></details>
+    <details class="menu"><summary>Window</summary><div class="menu-items"><button data-act="tab" data-arg="pages">Pages panel</button><button data-act="tab" data-arg="styles">Styles panel</button><button data-act="tab" data-arg="para">Paragraph panel</button><button data-act="tab" data-arg="hf">Header/footer panel</button></div></details>
+    <details class="menu"><summary>Help</summary><div class="menu-items"><button data-act="help">Shortcuts & format support</button></div></details>
+  </nav>
+  <button class="btn orange" data-act="undo">↩ Undo</button><button class="btn orange" data-act="redo">↪ Redo</button>
+  <div id="zoomBox"><button data-act="zoomOut">−</button><span id="zoomLabel">100%</span><button data-act="zoomIn">+</button><button data-act="zoomFit">Fit</button></div>
+  <label><input type="checkbox" data-grid id="showGrid"> Grid</label>
+  <label><input type="checkbox" id="snapOn" checked> Snap</label>
+  <label class="gm"><input type="checkbox" data-guide="showMargin" checked> Margin</label><label class="gb"><input type="checkbox" data-guide="showBleed" checked> Bleed</label>
+  <button class="btn" data-act="toggleTheme" id="themeBtn" title="Screen mode: click to switch between white screen and black screen"><i data-lucide="sun-moon"></i> <span id="themeLbl">Black</span></button><button class="btn blue" data-act="toggleScroll" id="scrollBtn">Scroll view</button>
+  <button class="btn" data-act="copy">Copy</button><button class="btn" data-act="paste">Paste</button>
+  <button class="btn" data-act="pickFile" data-arg="project">Open</button>
+  <details class="dd"><summary class="btn green">Export ▾</summary><div class="ddm">
+    <button class="btn" data-act="exportDocx" title="Real, editable text and tables · 2 cm margins on every side">Word (.docx) – editable, 2 cm margins</button><button class="btn" data-act="exportPdf" title="Selectable text and tables · 2 cm margins on every side">PDF (.pdf) – text, 2 cm margins</button><button class="btn" data-act="exportPdfExact" title="Each page exactly as designed (as a picture)">PDF (.pdf) – exact page layout</button>
+    <button class="btn" data-act="exportPptx">PowerPoint (.pptx)</button><button class="btn" data-act="exportIdml">InDesign (.idml)</button><button class="btn" data-act="exportPng">PNG – all pages (.zip)</button></div></details>
+  
+  <input type="file" accept="image/*" hidden data-file="image"><input type="file" accept="image/*" hidden data-file="hdr"><input type="file" accept="image/*" hidden data-file="ftr"><input type="file" accept=".idproj,.indesign,.json" hidden data-file="project"><input type="file" accept=".docx,.pdf,.idml,.indd,.rtf,.txt,.html,.htm,.xml,.json,.indesign,.idproj" hidden data-file="import">
+</header>
+
+<div id="main">
+  <nav id="toolbar"></nav>
+  <aside id="leftPanel">
+    <div id="tabs">
+      <div class="tab active" data-act="tab" data-arg="pages">PAGES</div><div class="tab" data-act="tab" data-arg="styles">STYLES</div>
+      <div class="tab" data-act="tab" data-arg="para">PARA</div><div class="tab" data-act="tab" data-arg="hf">HF</div>
+    </div>
+    <section id="pane-pages" class="pane active">
+      <div id="pagesList"></div>
+      <button class="btn blue" data-act="addPage">+ Page</button><button class="btn blue" data-act="addToc">+ TOC</button><button class="btn orange" data-act="refreshToc" title="Rebuild the TOC page(s) from the current headings and page numbers"><i data-lucide="refresh-cw"></i> Refresh TOC</button><button class="btn red" data-act="deletePage">Delete page</button>
+      <div class="box"><h4>Page setup</h4><label>Current page fill<input type="color" id="pageFill" value="#ffffff" data-pagefill></label><select id="paperSize" data-paper></select>
+        <div class="row"><button class="btn" data-act="orient" data-arg="portrait">Portrait</button><button class="btn" data-act="orient" data-arg="landscape">Landscape</button></div></div>
+      <div class="box"><h4>Heading level</h4><button class="btn" data-act="resetHeadings">Reset heading positions (this page)</button><p class="hint">Each style stores a position (Styles tab). Blank = top-left of the margin.</p></div>
+      <div class="box"><h4>Guides (all pages)</h4>
+        <label><input type="checkbox" data-grid id="showGrid2"> Grid</label>
+        <label class="gm"><input type="checkbox" data-guide="showMargin" checked> Margin guide (blue)</label>
+        <label class="gb"><input type="checkbox" data-guide="showBleed" checked> Bleed guide (red)</label>
+        <div class="row"><label>Margin (all sides)<input type="number" data-gnum="m" min="0" max="200" value="113.4"></label><label>Bleed<input type="number" data-gnum="bleed" min="0" max="60" value="4.72"></label></div><label><input type="checkbox" id="sameMargin" checked> Same margin size on all four sides</label>
+        <label class="leftspace">Left margin (px)<input type="number" id="leftSpace" data-gnum="mL" min="0" max="400" step="1" value="113.4" disabled></label>
+        <label><input type="checkbox" id="moveContent" checked> Move existing content when the margin changes</label>
+        <div class="row"><button class="btn" data-act="leftPreset" data-arg="75.6">2 cm</button><button class="btn" data-act="leftPreset" data-arg="94.5">2.5 cm</button><button class="btn" data-act="leftPreset" data-arg="113.4">3 cm</button></div>
+        <p class="hint">An object that crosses the margin or bleed line always raises an error (even when the guide lines are switched off). Text outside the margin is hidden.</p></div>
+    </section>
+    <section id="pane-styles" class="pane">
+      <div class="box hl"><h4>Create style</h4>
+        <input id="sName" placeholder="Style name">
+        <select id="sLevel"><option value="0">Normal</option><option value="1" selected>Heading 1</option><option value="2">Heading 2</option><option value="3">Heading 3</option></select>
+        <select id="sFont" data-fonts></select>
+        <div class="row"><input type="number" id="sSize" value="28"><input type="color" id="sColor" value="#111111"></div>
+        <label><input type="checkbox" id="sBold" checked> Bold</label><label><input type="checkbox" id="sItalic"> Italic</label><label>List numbering<select id="sList"><option value="none">None</option><option value="heading1">Heading numbering (1, 2…)</option><option value="heading2">Subheading numbering (1.1, 2.1…)</option><option value="heading3">Third-level numbering (1.1.1…)</option><option value="bullet">Bullet list</option><option value="number">Numbered list</option></select></label>
+        <div class="row"><label>Before<input type="number" id="sBefore" value="0" min="0"></label><label>After<input type="number" id="sAfter" value="12" min="0"></label><label>Line<input type="number" id="sLine" value="1.3" step="0.1" min="0.8"></label></div>
+        <div class="row"><label>Pos X<input type="number" id="sX" placeholder="margin"></label><label>Pos Y<input type="number" id="sY" placeholder="margin"></label></div><button class="btn" data-act="stylePosFromSel">📍 Position from selected</button>
+        <button class="btn orange" id="sSubmit" data-act="createStyle">+ Create style</button><button class="btn" id="sCancel" data-act="cancelStyle" hidden>Cancel edit</button>
+      </div>
+      <div id="stylesList"></div>
+      <div id="styleBar"><div id="styleSel" class="hint"></div>
+        <div class="row4"><button class="btn blue" data-act="applySel" title="Apply the selected style to the selected text box"><i data-lucide="check"></i><span>Apply</span></button><button class="btn orange" data-act="editSel" title="Edit the selected style"><i data-lucide="pencil"></i><span>Edit</span></button><button class="btn" data-act="resetSel" title="Move every text box using this style back to its saved position"><i data-lucide="rotate-ccw"></i><span>Reset pos</span></button><button class="btn red" data-act="delSel" title="Delete the selected style"><i data-lucide="trash-2"></i><span>Del</span></button></div></div>
+    </section>
+    <section id="pane-para" class="pane">
+      <div class="box"><h4>Columns</h4>
+        <div class="row"><button class="btn" data-act="columns" data-arg="1">Single</button><button class="btn" data-act="columns" data-arg="2">Two</button><button class="btn" data-act="columns" data-arg="3">Three</button></div>
+        <button class="btn blue" data-act="makeColumns" title="With a text box selected: splits its text into balanced columns. Nothing selected: adds empty column boxes">Create columns (select a text box first to split it)</button></div>
+      <div class="box"><h4>Lists</h4><p class="hint">Select a text box – each line becomes a list item. Press again to remove the list.</p><div class="row"><button class="btn ibtn" data-act="listBullet" title="Bullet list"><i data-lucide="list"></i><span>Bullets</span></button><button class="btn ibtn" data-act="listNumber" title="Numbered list"><i data-lucide="list-ordered"></i><span>Numbers</span></button></div></div>
+      <div class="box"><h4>Wrap text inside a shape</h4><p class="hint">Select a shape and a text box (Ctrl+click), then wrap.</p>
+        <button class="btn blue" data-act="wrapInside">Wrap inside shape</button><button class="btn" data-act="unwrapInside">Reset text</button></div>
+      <button class="btn blue" data-act="openDialog">Picture layout dialog</button>
+    </section>
+    <section id="pane-hf" class="pane">
+      <div class="box hl"><h4>Header / footer lock</h4>
+        <div class="row"><button class="btn blue" id="editBtn" data-act="hfEdit">✏️ Edit</button><button class="btn red" id="lockBtn" data-act="hfLock">🔒 Locked</button></div>
+        <p class="hint" id="lockStatus"></p>
+        <label><input type="checkbox" data-hf id="enHeader" checked> Header</label>
+        <input data-hf id="hLeft" placeholder="Left"><input data-hf id="hCenter" placeholder="Center"><input data-hf id="hRight" placeholder="Right"><div class="grid2"><label>Header X (px)<input data-hf id="hX" type="number" value="0"></label><label>Header Y (px)<input data-hf id="hY" type="number" value="94.5"></label></div>
+        <div class="logo" id="hdrPrev">No logo</div><div class="row"><button class="btn" data-act="pickFile" data-arg="hdr">Upload</button><button class="btn orange" data-act="useAdoreLogo" data-arg="hdr">Adore logo</button><button class="btn red" data-act="clearLogo" data-arg="hdr">Remove</button></div><label>Logo height (px)<input data-hf id="hLogoH" type="number" min="10" max="120" value="34"></label>
+        <select data-hf id="hLogoPos"><option value="left">Logo left</option><option value="center">Logo center</option><option value="right">Logo right</option></select>
+        <label><input type="checkbox" data-hf id="hLine" checked> Line</label>
+      </div>
+      <div class="box"><h4>Footer</h4><label><input type="checkbox" data-hf id="enFooter" checked> Footer</label><div class="grid2"><label>Footer X (px)<input data-hf id="fX" type="number" value="0"></label><label>Footer Y (px)<input data-hf id="fY" type="number" value="843"></label></div>
+        <input data-hf id="fLeft" placeholder="Left text">
+        <select data-hf id="fPagePos"><option value="right">Page no. right</option><option value="left">Page no. left</option><option value="center">Page no. center</option><option value="no">No page no.</option></select>
+        <div class="logo" id="ftrPrev">No logo</div><div class="row"><button class="btn" data-act="pickFile" data-arg="ftr">Upload</button><button class="btn orange" data-act="useAdoreLogo" data-arg="ftr">Adore logo</button><button class="btn red" data-act="clearLogo" data-arg="ftr">Remove</button></div>
+        <select data-hf id="fLogoPos"><option value="left">Logo left</option><option value="center">Logo center</option><option value="right">Logo right</option></select>
+        <label><input type="checkbox" data-hf id="fLine" checked> Line</label>
+      </div>
+    </section>
+  </aside>
+  <main id="center"><div id="singleView"><canvas id="c"></canvas></div><div id="scrollView"></div></main>
+  <aside id="rightPanel">
+    <div id="selInfo">Nothing selected</div>
+    <div class="box" id="objectProps"><h4>Object properties</h4>
+      <div class="grid2"><label>X position (px)<input type="number" id="objX" step="1"></label><label>Y position (px)<input type="number" id="objY" step="1"></label></div>
+      <div class="grid2"><label>Width (px)<input type="number" id="objW" min="1" step="1"></label><label>Height (px)<input type="number" id="objH" min="1" step="1"></label></div>
+      <label><input type="checkbox" id="objLockRatio" checked> Lock aspect ratio</label>
+      <label><input type="checkbox" id="noTextWrap"> No text wrap around this object</label>
+      <div class="row"><button class="btn ibtn blue" data-act="applyObjectProps" title="Apply the X / Y / width / height values"><i data-lucide="check"></i><span>Apply</span></button><button class="btn ibtn " data-act="cropImage" title="Crop the selected image"><i data-lucide="crop"></i><span>Crop</span></button></div>
+      <p class="hint">Use arrow keys to move a selected object; Shift + arrow moves it farther.</p>
+    </div>
+    <div id="imageBox" class="box hl" hidden><h4>Image</h4>
+      <label>Border <span id="borderWVal">0</span>px</label><input type="range" id="borderW" min="0" max="20" value="0" data-border data-out="borderWVal">
+      <input type="color" id="borderColor" value="#000000" data-border>
+      <select id="borderStyle" data-border><option value="solid">Solid</option><option value="dashed">Dashed</option><option value="dotted">Dotted</option></select>
+      <div class="row"><button class="btn" data-act="borderPreset" data-arg="2,#000000,solid">2px black</button><button class="btn" data-act="borderPreset" data-arg="4,#2563eb,solid">4px blue</button><button class="btn" data-act="borderPreset" data-arg="0,#000000,solid">None</button></div>
+      <h4>Text wrap</h4><div id="wrapBtns" class="grid2"></div>
+      <h4>Space around image (px)</h4><div class="grid4 pad"><label>Top<input type="number" id="padT" data-pad="t" min="0" value="10"></label><label>Right<input type="number" id="padR" data-pad="r" min="0" value="10"></label><label>Bottom<input type="number" id="padB" data-pad="b" min="0" value="10"></label><label>Left<input type="number" id="padL" data-pad="l" min="0" value="10"></label></div>
+    </div>
+    <div id="textBoxProps" class="box" hidden><h4>Text</h4>
+      <select id="fFamily" data-fonts data-prop="fontFamily"></select>
+      <div class="row"><button class="btn ibtn " data-act="toggle" data-arg="bold" title="Bold"><i data-lucide="bold"></i></button><button class="btn ibtn " data-act="toggle" data-arg="italic" title="Italic"><i data-lucide="italic"></i></button><button class="btn ibtn " data-act="toggle" data-arg="underline" title="Underline"><i data-lucide="underline"></i></button></div>
+      <label>Size <span id="sizeVal">18</span></label><input type="range" id="fSize" min="8" max="200" value="18" data-prop="fontSize" data-out="sizeVal">
+      <div class="row"><button class="btn ibtn " data-act="align" data-arg="left" title="Align left"><i data-lucide="align-left"></i></button><button class="btn ibtn " data-act="align" data-arg="center" title="Align center"><i data-lucide="align-center"></i></button><button class="btn ibtn " data-act="align" data-arg="right" title="Align right"><i data-lucide="align-right"></i></button><button class="btn ibtn " data-act="align" data-arg="justify" title="Justify"><i data-lucide="align-justify"></i></button></div><div class="row"><button class="btn ibtn" data-act="listBullet" title="Bullet list"><i data-lucide="list"></i></button><button class="btn ibtn" data-act="listNumber" title="Numbered list"><i data-lucide="list-ordered"></i></button><button class="btn ibtn" data-act="makeColumns" title="Split this text into the number of columns chosen in the PARA tab"><i data-lucide="columns-2"></i></button></div>
+    </div>
+    <div id="paraBox" class="box" hidden><h4>Paragraph space &amp; line</h4>
+      <label>Space before <span id="bVal">0</span>px</label><input type="range" id="bSpace" min="0" max="60" value="0" data-prop="beforeSpace" data-out="bVal">
+      <label>Space after <span id="aVal">0</span>px</label><input type="range" id="aSpace" min="0" max="80" value="0" data-prop="afterSpace" data-out="aVal">
+      <label>Line spacing <span id="lVal">1.3</span></label><input type="range" id="lSpace" min="0.8" max="3" step="0.1" value="1.3" data-prop="lineHeight" data-out="lVal">
+    </div>
+    <div id="shapeBox" class="box" hidden><h4>Shape</h4>
+      <div class="row"><label>Fill<input type="color" id="shFill" data-prop="fill"></label><label>Stroke<input type="color" id="shStroke" data-prop="stroke"></label></div>
+      <div class="row"><label>Width (px)<input type="number" id="shapeWidth" min="1" step="1"></label><label>Height (px)<input type="number" id="shapeHeight" min="1" step="1"></label></div><label><input type="checkbox" id="lockRatio" checked> Lock aspect ratio</label><button class="btn" data-act="applyShapeSize">Apply size</button>
+      <input type="range" id="shStrokeW" min="0" max="20" value="2" data-prop="strokeWidth">
+    </div>
+    <div id="tableBox" class="box hl" hidden><h4>Table</h4>
+      <div class="grid2"><label>Rows<input type="number" id="tRows" min="1" max="40"></label><label>Columns<input type="number" id="tCols" min="1" max="12"></label></div>
+      <button class="btn ibtn blue" data-act="tableResize" title="Apply rows / columns"><i data-lucide="check"></i><span>Apply rows / columns</span></button>
+      <label><input type="checkbox" id="tHeader"> Header row</label><label><input type="checkbox" id="tAlt"> Shade alternate rows</label>
+      <div class="grid2"><label>Header fill<input type="color" id="tHeadFill"></label><label>Header text<input type="color" id="tHeadColor"></label><label>Cell fill<input type="color" id="tFill"></label><label>Text<input type="color" id="tColor"></label><label>Border<input type="color" id="tBorder"></label><label>Border (px)<input type="number" id="tBw" min="0" max="10" step="0.5"></label></div>
+      <div class="grid2"><label>Font size<input type="number" id="tSize" min="6" max="48"></label><label>Min row height<input type="number" id="tRowH" min="12"></label><label>Table width<input type="number" id="tWidth" min="60"></label></div>
+      <select id="tFont" data-fonts></select>
+      <h4>Cells</h4><div id="tCells"></div><p class="hint">Double-click a cell on the page to edit it, or type in the grid above. Drag the table handles to resize the columns.</p>
+    </div>
+    <div class="box"><h4>Align</h4>
+      <div class="grid3"><button class="btn ibtn " data-act="alignObj" data-arg="left" title="Align left edges"><i data-lucide="align-start-vertical"></i></button><button class="btn ibtn " data-act="alignObj" data-arg="centerH" title="Center horizontally"><i data-lucide="align-center-vertical"></i></button><button class="btn ibtn " data-act="alignObj" data-arg="right" title="Align right edges"><i data-lucide="align-end-vertical"></i></button><button class="btn ibtn " data-act="alignObj" data-arg="top" title="Align top edges"><i data-lucide="align-start-horizontal"></i></button><button class="btn ibtn " data-act="alignObj" data-arg="centerV" title="Center vertically"><i data-lucide="align-center-horizontal"></i></button><button class="btn ibtn " data-act="alignObj" data-arg="bottom" title="Align bottom edges"><i data-lucide="align-end-horizontal"></i></button></div>
+      <button class="btn ibtn " data-act="centerPage" title="Center the selection on the page"><i data-lucide="crosshair"></i><span>Center on page</span></button></div>
+    <div class="box"><h4>Distribute</h4>
+      <div class="grid4"><button class="btn ibtn " data-act="distribute" data-arg="left" title="Distribute left edges evenly"><i data-lucide="align-horizontal-distribute-start"></i></button><button class="btn ibtn " data-act="distribute" data-arg="centerH" title="Distribute horizontal centres evenly"><i data-lucide="align-horizontal-distribute-center"></i></button><button class="btn ibtn " data-act="distribute" data-arg="right" title="Distribute right edges evenly"><i data-lucide="align-horizontal-distribute-end"></i></button><button class="btn ibtn blue" data-act="distribute" data-arg="spaceH" title="Equal horizontal space between objects"><i data-lucide="align-horizontal-space-between"></i></button><button class="btn ibtn " data-act="distribute" data-arg="top" title="Distribute top edges evenly"><i data-lucide="align-vertical-distribute-start"></i></button><button class="btn ibtn " data-act="distribute" data-arg="centerV" title="Distribute vertical centres evenly"><i data-lucide="align-vertical-distribute-center"></i></button><button class="btn ibtn " data-act="distribute" data-arg="bottom" title="Distribute bottom edges evenly"><i data-lucide="align-vertical-distribute-end"></i></button><button class="btn ibtn blue" data-act="distribute" data-arg="spaceV" title="Equal vertical space between objects"><i data-lucide="align-vertical-space-between"></i></button></div>
+      <label>Fixed gap (px) – optional<input type="number" id="distGapPx" min="0" step="1" placeholder="auto: equal gaps"></label>
+      <p class="hint">Select 3 or more objects (drag a box, or Shift+click). With a fixed gap, 2 objects are enough.</p></div>
+    <div class="box"><h4>Merge shapes</h4><div class="grid2"><button class="btn ibtn " data-act="merge" title="Merge the selected shapes into one object"><i data-lucide="combine"></i><span>Merge</span></button><button class="btn ibtn " data-act="unmerge" title="Split a merged object back into shapes"><i data-lucide="split"></i><span>Unmerge</span></button></div><p class="hint">Merges the selected shapes, or every shape on the page, into one object.</p></div>
+    <div class="box"><h4>Order</h4>
+      <div class="grid4"><button class="btn ibtn " data-act="order" data-arg="front" title="Bring to front"><i data-lucide="bring-to-front"></i></button><button class="btn ibtn " data-act="order" data-arg="forward" title="Bring forward"><i data-lucide="arrow-up"></i></button><button class="btn ibtn " data-act="order" data-arg="backward" title="Send backward"><i data-lucide="arrow-down"></i></button><button class="btn ibtn " data-act="order" data-arg="back" title="Send to back"><i data-lucide="send-to-back"></i></button></div></div>
+  </aside>
+</div>
+<footer id="bottombar"><span id="status">READY</span><span id="err" hidden></span><span id="pageInfo"></span></footer>
+<div id="flyout" hidden></div><div id="tip" hidden></div>
+<div id="tableDialog" class="dlg" hidden>
+  <div class="title"><span>Insert table</span><span data-act="closeTableDialog" class="x">✕</span></div>
+  <div class="body"><div class="grid2"><label>Rows<input id="tdRows" type="number" min="1" max="40" value="4"></label><label>Columns<input id="tdCols" type="number" min="1" max="12" value="3"></label></div>
+    <label><input type="checkbox" id="tdHeader" checked> First row is a header</label><p class="hint">The table is placed inside the page margins and can be restyled in the right-hand panel.</p></div>
+  <div class="foot"><button class="btn orange" data-act="applyTable">Insert</button><button class="btn" data-act="closeTableDialog">Cancel</button></div>
+</div>
+<div id="pasteTableDialog" class="dlg" hidden>
+  <div class="title"><span>Paste table</span><span data-act="closePasteTable" class="x">✕</span></div>
+  <div class="body"><p class="hint">Copy a table (or a block of cells) in Word, Excel or PowerPoint, click the box below and press <b>Ctrl+V</b>. You can also press Ctrl+V directly on the page.</p>
+    <div id="ptBox" contenteditable="true" spellcheck="false"></div><p class="hint" id="ptMsg" style="color:#b91c1c"></p></div>
+  <div class="foot"><button class="btn" data-act="closePasteTable">Close</button></div>
+</div>
+<div id="importDialog" class="dlg" hidden>
+  <div class="title"><span>Import</span><span data-act="closeImport" class="x">✕</span></div>
+  <div class="body"><b id="impTitle"></b><p class="hint" id="impInfo"></p><p>How do you want to use this file?</p>
+    <button class="btn blue impbtn" data-act="importNew"><i data-lucide="file-plus"></i><span>New document</span><small>Replaces the current document with the imported pages</small></button>
+    <button class="btn orange impbtn" id="impAddBtn" data-act="importAdd"><i data-lucide="files"></i><span>Add pages to current file</span><small>Keeps the current pages and adds the imported ones at the end</small></button></div>
+  <div class="foot"><button class="btn" data-act="closeImport">Cancel</button></div>
+</div>
+<div id="layoutDialog" hidden>
+  <div class="title"><span>Picture layout</span><span data-act="closeDialog" class="x">✕</span></div>
+  <div class="body">
+    <b>Wrapping style</b><div id="wrapGrid" class="grid4"></div>
+    <b>Wrap text</b><div class="row">
+      <label><input type="radio" name="wrapSide" value="both" checked> Both sides</label><label><input type="radio" name="wrapSide" value="left"> Left only</label>
+      <label><input type="radio" name="wrapSide" value="right"> Right only</label><label><input type="radio" name="wrapSide" value="largest"> Largest only</label></div>
+    <b>Space around image (cm)</b><div class="grid2">
+      <label>Top<input id="distTop" type="number" step="0.1" min="0" value="0.26"></label><label>Bottom<input id="distBottom" type="number" step="0.1" min="0" value="0.26"></label><label>Left<input id="distLeft" type="number" step="0.1" min="0" value="0.26"></label><label>Right<input id="distRight" type="number" step="0.1" min="0" value="0.26"></label></div>
+  </div>
+  <div class="foot"><button class="btn orange" data-act="applyDialog">OK</button><button class="btn" data-act="closeDialog">Cancel</button></div>
+</div>
+<script src="js/assets.js"></script><script src="js/core.js"></script><script src="js/paragraph.js"></script><script src="js/guides.js"></script><script src="js/objects.js"></script><script src="js/pages.js"></script><script src="js/headerfooter.js"></script>
+<script src="js/wrap.js"></script><script src="js/table.js"></script><script src="js/export.js"></script><script src="js/importer.js"></script><script src="js/ui.js"></script>
+<script>
+// Keep one application menu open at a time, and close menus after choosing a command.
+document.querySelectorAll('#menubar details.menu').forEach(menu => {
+  menu.addEventListener('toggle', () => { if (menu.open) document.querySelectorAll('#menubar details.menu').forEach(other => { if (other !== menu) other.open = false; }); });
+  menu.querySelectorAll('button').forEach(button => button.addEventListener('click', () => { menu.open = false; }));
+});
+</script>
+</body></html>
