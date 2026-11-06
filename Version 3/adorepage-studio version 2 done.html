@@ -1,0 +1,4241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adorepage Studio - Document & Design Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Mukta:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0a12;
+  --panel: #161320;
+  --sidebar: #12101a;
+  --field: #09070f;
+  --line: #272336;
+  --line-hover: #3d3752;
+  --text: #f4f1fa;
+  --muted: #958fa8;
+  --accent: #7b5cff;
+  --accent-glow: rgba(123, 92, 255, 0.35);
+  --accent2: #ff7a59;
+  --accent2-glow: rgba(255, 122, 89, 0.35);
+  --success: #10b981;
+  --danger: #ef4444;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+  --topbar-h: 50px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 400 14px/1.5 Figtree, system-ui, -apple-system, sans-serif;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, select, input, textarea {
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+  transition: all 0.15s ease;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2f2a40; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #453e5e; }
+
+/* ============================================================
+   TOP GLOBAL HEADER
+   ============================================================ */
+.studio-header {
+  height: var(--topbar-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  gap: 16px;
+  flex-shrink: 0;
+  z-index: 50;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  user-select: none;
+}
+.brand-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  box-shadow: 0 4px 12px var(--accent-glow);
+}
+.brand-name {
+  font: 700 16px 'Bricolage Grotesque', sans-serif;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.brand-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: rgba(255,122,89,0.12);
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,122,89,0.25);
+}
+
+.top-center-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--field);
+  padding: 3px 6px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+}
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 15px;
+  position: relative;
+}
+.icon-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+.icon-btn.active, .icon-btn.on {
+  color: #fff;
+  background: var(--accent);
+}
+.sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  margin: 0 4px;
+}
+
+.top-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.status-pill {
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--field);
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+  white-space: nowrap;
+}
+.status-pill b {
+  color: var(--text);
+  font-weight: 500;
+}
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 8px var(--success);
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px var(--accent-glow);
+}
+.btn-secondary {
+  background: var(--field);
+  color: var(--text);
+  border: 1px solid var(--line);
+  font-weight: 500;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-secondary:hover {
+  border-color: var(--accent);
+  color: #fff;
+}
+.export-select {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 6px 12px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+}
+.export-select:hover {
+  border-color: var(--accent);
+}
+
+/* ============================================================
+   MAIN STUDIO LAYOUT (STRETCHED SCREEN: LEFT - CENTER - RIGHT)
+   ============================================================ */
+.studio-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  height: calc(100vh - var(--topbar-h));
+  position: relative;
+}
+
+/* ------------------------------------------------------------
+   LEFT SIDEBAR: TEMPLATES, DESIGNS & THEMES
+   ------------------------------------------------------------ */
+.left-sidebar {
+  width: 290px;
+  background: var(--sidebar);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  transition: width 0.2s ease;
+}
+.sidebar-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sidebar-title {
+  font: 700 13px 'Bricolage Grotesque', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sidebar-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--field);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--line);
+}
+.sidebar-tab-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  border-radius: var(--radius-full);
+}
+.sidebar-tab-btn.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.left-filters {
+  padding: 8px 12px;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.filter-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: var(--field);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.filter-chip:hover {
+  color: var(--text);
+  border-color: var(--line-hover);
+}
+.filter-chip.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.ai-generate-banner-btn {
+  margin: 10px 12px 4px;
+  padding: 9px 12px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(255,122,89,0.18), rgba(123,92,255,0.22));
+  border: 1px solid rgba(123,92,255,0.4);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+.ai-generate-banner-btn:hover {
+  border-color: var(--accent);
+  background: linear-gradient(135deg, rgba(255,122,89,0.28), rgba(123,92,255,0.35));
+}
+
+.left-scroll-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.section-subtitle {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* Reduced size template cards */
+.design-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.design-card {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  position: relative;
+}
+.design-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+}
+.design-card.active {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 2px var(--accent2);
+}
+.design-preview {
+  height: 68px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #191624;
+}
+.design-mockup {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 4px;
+}
+.design-mockup.p-doc { width: 34px; height: 46px; }
+.design-mockup.p-poster { width: 32px; height: 48px; background: #1c1a2e; }
+.design-mockup.p-banner { width: 56px; height: 22px; background: #1e1738; }
+.design-mockup.p-flyer { width: 36px; height: 48px; }
+.design-mockup.p-brochure { width: 52px; height: 34px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+.design-mockup.p-invite { width: 36px; height: 38px; border: 1px solid #cbb885; }
+
+.design-mockup .m-bar { height: 8px; border-radius: 2px; background: var(--accent); }
+.design-mockup .m-line { height: 3px; border-radius: 1.5px; background: #e0dced; width: 85%; }
+.design-mockup .m-line.short { width: 55%; }
+
+.design-info {
+  padding: 6px 8px;
+  background: var(--field);
+  border-top: 1px solid var(--line);
+}
+.design-tag {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--accent2);
+  text-transform: uppercase;
+}
+.design-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Document Themes Grid */
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+.theme-card {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.theme-card:hover {
+  border-color: var(--accent);
+}
+.theme-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+.theme-name {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ------------------------------------------------------------
+   CENTER CANVAS AREA: WORKSPACE & DOCUMENT
+   ------------------------------------------------------------ */
+.center-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #09080e;
+  position: relative;
+}
+
+/* Reduced Size AI Prompt Tool (Docked at top of canvas) */
+.compact-ai-bar {
+  background: rgba(22, 19, 32, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  padding: 7px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  z-index: 30;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.ai-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, rgba(255,122,89,0.15), rgba(123,92,255,0.2));
+  border: 1px solid rgba(123,92,255,0.3);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ai-badge span {
+  font-size: 14px;
+}
+.ai-mode-pill {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--field);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.ai-mode-pill.on {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.ai-input-wrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.ai-prompt-input {
+  width: 100%;
+  height: 34px;
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 0 14px;
+  font-size: 13.5px;
+  color: var(--text);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.ai-prompt-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+.ai-prompt-input::placeholder {
+  color: #6a647d;
+}
+
+.ai-design-chip {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.ai-design-chip.show {
+  display: inline-flex;
+}
+.ai-design-chip b {
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.ai-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.btn-generate {
+  background: var(--accent2);
+  color: #150a04;
+  font-weight: 700;
+  font-size: 12.5px;
+  padding: 7px 18px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 2px 10px var(--accent2-glow);
+  white-space: nowrap;
+}
+.btn-generate:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 4px 14px var(--accent2-glow);
+}
+.btn-generate:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.quick-action-select {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 6px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  cursor: pointer;
+}
+.quick-action-select:hover {
+  color: var(--text);
+  border-color: var(--line-hover);
+}
+
+/* AI Drawer Result Display */
+.ai-result-drawer {
+  background: rgba(18, 15, 26, 0.98);
+  border-bottom: 1px solid var(--line);
+  padding: 12px 16px;
+  display: none;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 13.5px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--text);
+  border-left: 3px solid var(--accent2);
+}
+.ai-result-drawer.show {
+  display: block;
+}
+.ai-result-drawer-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+
+/* Canvas / Desk Area */
+.canvas-desk {
+  flex: 1;
+  overflow-y: auto;
+  padding: 30px 20px 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+#page {
+  counter-reset: pg;
+  outline: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform-origin: top center;
+  transition: transform 0.15s ease;
+}
+
+/* Sheet document styling */
+.sheet {
+  counter-increment: pg;
+  position: relative;
+  background: #fff;
+  color: #1b1824;
+  width: var(--pw, 794px);
+  height: var(--ph, 1123px);
+  margin: 0 auto 30px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font: 16px/1.5 Figtree, sans-serif;
+  isolation: isolate;
+  border-radius: 2px;
+}
+#page.land .sheet {
+  width: var(--ph, 1123px);
+  height: var(--pw, 794px);
+}
+.sheet.over {
+  box-shadow: 0 0 0 3px var(--accent2), 0 12px 48px rgba(0,0,0,0.55);
+}
+.sheet::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6px;
+  background: var(--strip, none);
+  pointer-events: none;
+}
+
+.hd, .ft {
+  flex: none;
+  height: var(--hh, 56px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--mr, 64px) 0 var(--ml, 64px);
+  font-size: 13px;
+  color: #666;
+}
+.hd { border-bottom: 1px solid #f0edf8; }
+.ft { border-top: 1px solid #f0edf8; margin-top: auto; height: var(--fh, 56px); }
+.hd:empty, .ft:empty { border: 0; }
+.logo { height: 26px; width: auto; }
+.pn { margin-left: auto; }
+.pn::before { content: "Page " counter(pg); }
+
+.body {
+  flex: 1;
+  position: relative;
+  padding: var(--mt, 14px) var(--mr, 64px) var(--mb, 14px) var(--ml, 64px);
+  overflow: hidden;
+  outline: 0;
+  line-height: 1.5;
+  caret-color: var(--accent2);
+}
+.cover .hd, .cover .ft { display: none; }
+.cover .body { padding: 0; }
+
+.body img {
+  max-width: 100%;
+  height: auto;
+  cursor: pointer;
+  display: block;
+}
+.body img.sel {
+  outline: 3px solid var(--accent2);
+  outline-offset: 2px;
+}
+.body ul, .body ol {
+  font-size: 0.9em;
+  padding-left: 1.4em;
+  margin: 0.4em 0;
+}
+.body li { margin: 0.15em 0; }
+.body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 10px 0;
+}
+.body td, .body th {
+  border: 1px solid #bbb;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+.body th {
+  background: #f0edf8;
+  text-align: left;
+}
+
+/* Movable Objects & Shapes */
+.obj {
+  position: absolute;
+  min-width: 60px;
+  min-height: 30px;
+  padding: 4px;
+  border: 1px dashed transparent;
+  resize: both;
+  overflow: auto;
+  background: transparent;
+}
+.obj:hover, .obj:focus-within {
+  border-color: var(--accent);
+}
+.obj.osel {
+  outline: 2px solid var(--accent2);
+  outline-offset: 1px;
+}
+.mv {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: none;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 0 0 0 8px;
+  cursor: move;
+  padding: 0 7px;
+  font-size: 13px;
+  user-select: none;
+  z-index: 10;
+}
+.obj:hover > .mv, .obj.osel > .mv { display: block; }
+.dx {
+  position: absolute;
+  right: 26px;
+  top: 0;
+  display: none;
+  background: #e5484d;
+  color: #fff;
+  border-radius: 0 0 6px 6px;
+  cursor: pointer;
+  padding: 0 7px;
+  font-size: 12px;
+  z-index: 10;
+  user-select: none;
+}
+.obj:hover > .dx, .obj.osel > .dx { display: block; }
+.obj.shp {
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  min-width: 14px;
+  min-height: 8px;
+  cursor: move;
+}
+.shp svg { width: 100%; height: 100%; display: block; }
+.shp rect, .shp ellipse, .shp path {
+  fill: var(--fill);
+  stroke: var(--stk);
+  stroke-width: var(--sw);
+  vector-effect: non-scaling-stroke;
+}
+
+/* TOC & Cover */
+.toc {
+  margin: 12px 0;
+  padding: 16px 20px;
+  background: #f6f4fb;
+  border-radius: 10px;
+}
+.toc .tt {
+  font: 700 1.25em 'Bricolage Grotesque', sans-serif;
+  margin-bottom: 8px;
+  color: #1b1824;
+}
+.toc a {
+  display: flex;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+  padding: 3px 0;
+}
+.toc a:hover { color: var(--accent); }
+.toc a i {
+  flex: 1;
+  border-bottom: 1px dotted #999;
+  margin-bottom: 5px;
+}
+.toc .l2 { padding-left: 16px; }
+.toc .l3 { padding-left: 32px; }
+.flash { background: #fff3a8; }
+
+#page {
+  --c: #151e5c;
+  --d: #00006e;
+  --f: 'Bricolage Grotesque', sans-serif;
+  --bf: Figtree, sans-serif;
+}
+#page .body { font-family: var(--bf); }
+#page .body h1, #page .body h2, #page .body h3 {
+  color: var(--c);
+  font-family: var(--f);
+  margin: 0.6em 0 0.3em;
+  letter-spacing: -0.01em;
+}
+#page h1 { font-size: 2.2em; }
+#page h2 { font-size: 1.6em; }
+.cv {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  font-family: var(--f);
+}
+#page .cv h1 {
+  font-size: 2.6em;
+  line-height: 1.1;
+  margin: 0;
+  color: inherit;
+}
+.cv p { margin: 0.4em 0; }
+.cv [data-f] { outline: 0; }
+[data-f]:empty::before {
+  content: attr(data-ph);
+  opacity: 0.45;
+}
+.cv-res {
+  background: #00006e var(--net) center top/100% auto no-repeat;
+  color: #fff;
+}
+.cv-res .lg {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: 320px;
+  max-width: 60%;
+}
+#page .cv-res h1 {
+  position: absolute;
+  left: 64px;
+  right: 64px;
+  bottom: 190px;
+  font-weight: 300;
+  color: #4f5bff;
+}
+.cv-res [data-f=s] {
+  position: absolute;
+  left: 64px;
+  bottom: 140px;
+  color: #cfd3ff;
+}
+.cv-res [data-f=m] {
+  position: absolute;
+  left: 64px;
+  bottom: 26px;
+  font-size: 12px;
+  margin: 0;
+}
+.cv-band { color: var(--d); }
+#page .cv-band h1 {
+  background: var(--c);
+  color: #fff;
+  padding: 150px 64px 36px;
+  height: 42%;
+}
+.cv-band [data-f=s] {
+  padding: 28px 64px 0;
+  font-size: 1.3em;
+  color: var(--c);
+}
+.cv-band [data-f=m] { padding: 0 64px; color: #666; }
+.cv-full {
+  background: linear-gradient(160deg, var(--c), var(--d));
+  color: #fff;
+  padding: 80px 64px;
+}
+.cv-full h1 { margin-top: 300px; }
+.cv-center {
+  border: 14px solid var(--c);
+  text-align: center;
+  padding-top: 300px;
+}
+#page .cv-center h1 { color: var(--c); }
+.nocover .cover { display: none; }
+.notoc .tocpg { display: none; }
+.nolg .lg { display: none; }
+.mg .pg .body::before, .mg .tocpg .body::before {
+  content: "";
+  position: absolute;
+  inset: var(--mt) var(--mr) var(--mb) var(--ml);
+  border: 1px dashed rgba(123, 92, 255, 0.45);
+  pointer-events: none;
+  z-index: 50;
+}
+.marks .body p::after, .marks .body h1::after, .marks .body h2::after, .marks .body h3::after, .marks .body li::after, .marks .body blockquote::after {
+  content: " ¶";
+  color: #7b5cff;
+  font-weight: 400;
+  font-size: 0.75em;
+  opacity: 0.7;
+}
+
+/* ============================================================
+   END OF SCREEN ACTION BAR (Add page, Insert text, Import)
+   ============================================================ */
+.canvas-end-bar {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 10px 18px;
+  border-radius: var(--radius-full);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  z-index: 20;
+}
+.canvas-end-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--field);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.canvas-end-btn:hover {
+  border-color: var(--accent);
+  background: rgba(123, 92, 255, 0.15);
+  color: #fff;
+}
+.canvas-end-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.canvas-end-btn.primary:hover {
+  filter: brightness(1.1);
+}
+
+/* ------------------------------------------------------------
+   RIGHT SIDEBAR: ALL PROPERTIES SCREEN (WITH POSITION TABS)
+   ------------------------------------------------------------ */
+.right-sidebar {
+  width: 330px;
+  background: var(--sidebar);
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow: hidden;
+  z-index: 40;
+}
+
+/* Properties Tab Navigation (Respective Position Tabs) */
+.props-tabs-header {
+  display: flex;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  padding: 0 4px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.prop-tab-btn {
+  flex: 1;
+  padding: 11px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  white-space: nowrap;
+}
+.prop-tab-btn:hover {
+  color: var(--text);
+}
+.prop-tab-btn.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  background: rgba(123, 92, 255, 0.06);
+}
+.prop-tab-btn .tab-icon {
+  font-size: 15px;
+}
+
+.props-content-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prop-group {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.prop-group-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.prop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.prop-row.between {
+  justify-content: space-between;
+}
+.prop-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.prop-field label {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.prop-input, .prop-select {
+  height: 32px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0 8px;
+  font-size: 12.5px;
+  color: var(--text);
+  width: 100%;
+}
+.prop-input:focus, .prop-select:focus {
+  border-color: var(--accent);
+}
+.prop-input[type="number"] {
+  padding: 0 6px;
+}
+.prop-input[type="color"] {
+  padding: 2px;
+  width: 34px;
+  height: 32px;
+  cursor: pointer;
+}
+.prop-input[type="range"] {
+  accent-color: var(--accent2);
+  height: auto;
+  padding: 0;
+}
+
+.button-group {
+  display: flex;
+  gap: 2px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+.btn-toggle {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.btn-toggle:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.06);
+}
+.btn-toggle.on, .btn-toggle.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.props-status-footer {
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--panel);
+  font-size: 11.5px;
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.props-status-footer #fmtstat {
+  color: var(--text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ============================================================
+   MODALS & DIALOGS
+   ============================================================ */
+dialog.dlg {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  color: var(--text);
+  padding: 20px 24px;
+  width: min(520px, 94vw);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+}
+dialog.dlg::backdrop {
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+}
+.dlg-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.dlg h3 {
+  font: 700 18px 'Bricolage Grotesque', sans-serif;
+  letter-spacing: -0.01em;
+}
+.dlg-close {
+  font-size: 18px;
+  color: var(--muted);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dlg-close:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.08);
+}
+
+.import-drop-zone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-md);
+  padding: 24px 16px;
+  text-align: center;
+  background: var(--field);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+  margin-bottom: 16px;
+}
+.import-drop-zone:hover, .import-drop-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(123, 92, 255, 0.05);
+}
+.import-icon {
+  font-size: 32px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.destination-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--field);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+}
+.dest-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+}
+.dest-option:hover {
+  background: rgba(255,255,255,0.04);
+}
+.dest-option input {
+  margin-top: 3px;
+  accent-color: var(--accent);
+}
+.dest-option-text {
+  display: flex;
+  flex-direction: column;
+}
+.dest-option-text b {
+  color: var(--text);
+  font-weight: 600;
+}
+.dest-option-text span {
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* AI Design Chooser Modal */
+.ai-chooser-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding: 4px;
+}
+.ai-chooser-card {
+  background: var(--field);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+.ai-chooser-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: rgba(123, 92, 255, 0.1);
+}
+.ai-chooser-card.active {
+  border-color: var(--accent2);
+  box-shadow: 0 0 0 2px var(--accent2);
+}
+.ai-chooser-preview {
+  width: 50px;
+  height: 60px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+@media print {
+  body > *:not(.print-container) { display: none !important; }
+  body { background: #fff !important; }
+  .canvas-desk { padding: 0 !important; overflow: visible !important; }
+  .sheet { box-shadow: none !important; margin: 0 !important; break-after: page; }
+  .mv, .dx, .canvas-end-bar { display: none !important; }
+}
+</style>
+<style id="stl"></style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP STUDIO HEADER
+     ============================================================ -->
+<header class="studio-header">
+  <div class="brand">
+    <div class="brand-icon">A</div>
+    <div class="brand-name">
+      Adorepage 
+      
+    </div>
+  </div>
+
+  <div class="top-center-actions">
+    <button class="icon-btn" id="btn-undo" title="Undo (Ctrl+Z)" data-c="undo">↶</button>
+    <button class="icon-btn" id="btn-redo" title="Redo (Ctrl+Y)" data-c="redo">↷</button>
+    <div class="sep"></div>
+    <button class="icon-btn" id="btn-zo" title="Zoom Out">🔍−</button>
+    <span id="zl" style="min-width: 44px; text-align: center; font-size: 12px; font-weight: 600;">100%</span>
+    <button class="icon-btn" id="btn-zi" title="Zoom In">🔍+</button>
+    <button class="icon-btn" id="btn-zf" title="Fit to Screen Width">⤢</button>
+    <div class="sep"></div>
+    <button class="icon-btn" id="btn-mk" title="Show / Hide Paragraph Marks ¶">¶</button>
+    <button class="icon-btn" id="btn-fs" title="Full Screen">⛶</button>
+  </div>
+
+  <div class="top-right-actions">
+    <div class="status-pill">
+      <span class="status-dot"></span>
+      <span id="saved">Restored</span>
+      <span>·</span>
+      <span id="info">0 words · 0 pages</span>
+    </div>
+    <button class="btn-secondary" id="btn-open-import" title="Import Word (.docx), PDF, PPTX, InDesign">
+      📄 Import File
+    </button>
+    <select class="export-select" id="exp" title="Export in any format">
+      <option value="">⤓ Export</option>
+      <option value="all">Export All Formats</option>
+      <option value="pdf">PDF (Print / Vector)</option>
+      <option value="doc">Word Document (.doc)</option>
+      <option value="idtt">InDesign Tagged Text</option>
+      <option value="html">Web Page (.html)</option>
+      <option value="txt">Plain Text (.txt)</option>
+      <option value="json">Project Backup (.json)</option>
+    </select>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN 3-COLUMN WORKSPACE (STRETCHED SCREEN)
+     ============================================================ -->
+<main class="studio-body">
+
+  <!-- LEFT SIDEBAR: TEMPLATES, DESIGNS & THEMES -->
+  <aside class="left-sidebar" id="left-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <span>🎨</span> Designs & Templates
+      </div>
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab-btn active" id="tab-designs-btn">Templates</button>
+        <button class="sidebar-tab-btn" id="tab-themes-btn">Themes</button>
+      </div>
+    </div>
+
+    <div class="left-filters" id="template-filters">
+      <button class="filter-chip active" data-cat="all">All</button>
+      <button class="filter-chip" data-cat="poster">Posters</button>
+      <button class="filter-chip" data-cat="banner">Banners</button>
+      <button class="filter-chip" data-cat="flyer">Flyers</button>
+      <button class="filter-chip" data-cat="doc">Docs</button>
+      <button class="filter-chip" data-cat="card">Cards</button>
+    </div>
+
+    <button class="ai-generate-banner-btn" id="btn-open-ai-chooser">
+      <span>✨</span> AI Auto-Generate Design
+    </button>
+
+    <div class="left-scroll-content">
+      <!-- Section 1: Template Designs List (Reduced size cards) -->
+      <div id="templates-section">
+        <div class="section-subtitle">Click to Open & Apply Layout</div>
+        <div class="design-grid" id="design-grid"></div>
+      </div>
+
+      <!-- Section 2: Document Themes (hidden when Templates active) -->
+      <div id="themes-section" style="display: none;">
+        <div class="section-subtitle">Document Styling Presets</div>
+        <div class="themes-grid" id="themes-grid"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CENTER CANVAS: WORKSPACE & DOCUMENT -->
+  <section class="center-workspace">
+    
+    <!-- Compact AI Prompt Tool (Reduced Size) -->
+    <div class="compact-ai-bar">
+      <div class="ai-badge">
+        <span>✨</span> AI Writer & Designer
+      </div>
+      <button class="ai-mode-pill on" id="pill-mode-gen" title="Generate creative text & layouts">Draft</button>
+      <button class="ai-mode-pill" id="pill-mode-search" title="Search web sources with Anthropic">Search</button>
+
+      <div class="ai-input-wrap">
+        <span class="ai-design-chip" id="dchip">
+          <span id="dtxt">Design: Default</span>
+          <b id="dx" title="Reset design">✕</b>
+        </span>
+        <input type="text" class="ai-prompt-input" id="prompt" placeholder="Enter topic or prompt... AI writes & formats into your screen">
+      </div>
+
+      <div class="ai-actions">
+        <select class="quick-action-select" id="quick-actions-select" title="Run AI on selected text">
+          <option value="">⚡ Quick Actions</option>
+          <option value="0">🔍 Proofread Selection</option>
+          <option value="1">✎ Rewrite Professional</option>
+          <option value="2">← Make Shorter</option>
+          <option value="3">✨ Polish Tone</option>
+          <option value="4">＋ Write New Paragraph</option>
+          <option value="5">▦ Add Comparison Table</option>
+          <option value="6">≡ Summarize Document</option>
+        </select>
+        <button class="btn-generate" id="go">Generate</button>
+        <button class="icon-btn" id="gkey" title="Anthropic API Key Settings">⚙</button>
+      </div>
+    </div>
+
+    <!-- AI Output Drawer (Expandable when result generated) -->
+    <div class="ai-result-drawer" id="result-drawer">
+      <div id="result"></div>
+      <div class="ai-result-drawer-actions">
+        <button class="btn-secondary" id="btn-close-result" style="padding: 4px 10px; font-size: 12px;">Dismiss</button>
+        <button class="btn-primary" id="insert" style="padding: 4px 12px; font-size: 12px;">Insert into Document</button>
+      </div>
+    </div>
+
+    <!-- Document Canvas Desk -->
+    <div class="canvas-desk" id="desk">
+      <div id="page"></div>
+
+      <!-- Additional Page & Insert Text at End Action Bar -->
+      <div class="canvas-end-bar">
+        <button class="canvas-end-btn primary" id="btn-add-page-end" title="Add a blank page after the current text">
+          <span>➕</span> Add New Page
+        </button>
+        <button class="canvas-end-btn" id="btn-add-text-end" title="Insert text section after the end of the text screen">
+          <span>✍</span> Add Text at End
+        </button>
+        <button class="canvas-end-btn" id="btn-import-toc-quick" title="Insert Word or PDF text directly after TOC page">
+          <span>📄</span> Insert File After TOC
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RIGHT SIDEBAR: ALL PROPERTIES SCREEN (WITH POSITION TABS) -->
+  <aside class="right-sidebar" id="right-sidebar">
+    <!-- Properties Tab Navigation -->
+    <div class="props-tabs-header">
+      <button class="prop-tab-btn active" data-tab="style" title="Style & Typography">
+        <span class="tab-icon">✎</span>
+        <span>Style</span>
+      </button>
+      <button class="prop-tab-btn" data-tab="layout" title="Page & Margins Layout">
+        <span class="tab-icon">▤</span>
+        <span>Layout</span>
+      </button>
+      <button class="prop-tab-btn" data-tab="object" title="Element & Object Position">
+        <span class="tab-icon">⬚</span>
+        <span>Object</span>
+      </button>
+      <button class="prop-tab-btn" data-tab="table" title="Table Structure & Style">
+        <span class="tab-icon">▦</span>
+        <span>Table</span>
+      </button>
+      <button class="prop-tab-btn" data-tab="cover" title="Cover Page Styling">
+        <span class="tab-icon">◫</span>
+        <span>Cover</span>
+      </button>
+    </div>
+
+    <!-- Tab Contents Container -->
+    <div class="props-content-area">
+
+      <!-- TAB 1: STYLE & TYPOGRAPHY -->
+      <div class="prop-tab-pane" id="pane-style">
+        <!-- Paragraph Style Preset -->
+        <div class="prop-group">
+          <div class="prop-group-title">
+            <span>Paragraph Style</span>
+            <div style="display:flex;gap:4px;">
+              <button class="icon-btn" id="stn" style="width:24px;height:24px;" title="New Style from Selection">＋</button>
+              <button class="icon-btn" id="stu" style="width:24px;height:24px;" title="Update Style from Cursor">⟲</button>
+              <button class="icon-btn" id="ste" style="width:24px;height:24px;" title="Edit Style">✎</button>
+              <button class="icon-btn" id="std" style="width:24px;height:24px;" title="Delete Style">🗑</button>
+            </div>
+          </div>
+          <select class="prop-select" id="sty" title="Paragraph Style"></select>
+        </div>
+
+        <!-- Font & Size -->
+        <div class="prop-group">
+          <div class="prop-group-title">Typography</div>
+          <div class="prop-row">
+            <div class="prop-field" style="flex: 2;">
+              <label>Font Family</label>
+              <select class="prop-select" id="font">
+                <option>Figtree</option>
+                <option>Mukta</option>
+                <option>Bricolage Grotesque</option>
+                <option>Georgia</option>
+                <option>Times New Roman</option>
+                <option>Courier New</option>
+                <option>Arial</option>
+              </select>
+            </div>
+            <div class="prop-field" style="flex: 1.2;">
+              <label>Size (pt)</label>
+              <div style="display:flex;align-items:center;gap:2px;">
+                <button class="btn-toggle" id="fsm" title="Decrease">A−</button>
+                <input type="number" class="prop-input" id="fsz" min="6" max="200" value="12" style="text-align:center;">
+                <button class="btn-toggle" id="fsp" title="Increase">A+</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="prop-row between">
+            <div class="button-group">
+              <button class="btn-toggle" data-c="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+              <button class="btn-toggle" data-c="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+              <button class="btn-toggle" data-c="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+              <button class="btn-toggle" data-c="strikeThrough" title="Strikethrough"><s>S</s></button>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <label style="font-size:11px;color:var(--muted)">Color</label>
+              <input type="color" class="prop-input" id="color" value="#1b1824" title="Text Color">
+              <input type="color" class="prop-input" id="hl" value="#fff176" title="Highlight Color">
+            </div>
+          </div>
+        </div>
+
+        <!-- Alignment & Indents -->
+        <div class="prop-group">
+          <div class="prop-group-title">Alignment & Indents</div>
+          <div class="prop-row between">
+            <div class="button-group">
+              <button class="btn-toggle" data-c="justifyLeft" title="Align Left">⇤</button>
+              <button class="btn-toggle" data-c="justifyCenter" title="Center">↔</button>
+              <button class="btn-toggle" data-c="justifyRight" title="Align Right">⇥</button>
+              <button class="btn-toggle" data-c="justifyFull" title="Justify">≡</button>
+            </div>
+            <div class="button-group">
+              <button class="btn-toggle" data-c="insertUnorderedList" title="Bullet List">•</button>
+              <button class="btn-toggle" data-c="insertOrderedList" title="Numbered List">1.</button>
+              <button class="btn-toggle" data-c="outdent" title="Decrease Indent">⇠</button>
+              <button class="btn-toggle" data-c="indent" title="Increase Indent">⇢</button>
+            </div>
+          </div>
+
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Line Spacing</label>
+              <select class="prop-select" id="lh">
+                <option value="1">1.0 Compact</option>
+                <option value="1.2">1.2 Tight</option>
+                <option value="1.5" selected>1.5 Normal</option>
+                <option value="1.8">1.8 Relaxed</option>
+              </select>
+            </div>
+            <div class="prop-field">
+              <label>Hanging (pt)</label>
+              <input type="number" class="prop-input" id="hg" min="0" max="200" value="0">
+            </div>
+          </div>
+
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Space Before (pt)</label>
+              <input type="number" class="prop-input" id="sb" min="0" max="120" value="0">
+            </div>
+            <div class="prop-field">
+              <label>Space After (pt)</label>
+              <input type="number" class="prop-input" id="sa" min="0" max="120" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Insert Items -->
+        <div class="prop-group">
+          <div class="prop-group-title">Quick Insert</div>
+          <div class="prop-row">
+            <button class="btn-secondary" id="addimg" style="flex:1;">🖼 Image</button>
+            <button class="btn-secondary" id="tbx" style="flex:1;">▭ Text Box</button>
+            <button class="btn-secondary" id="tbl-quick" style="flex:1;">▦ Table</button>
+          </div>
+          <div class="prop-row">
+            <select class="prop-select" id="shp" style="flex:1;">
+              <option value="">◇ Insert Shape...</option>
+              <option value="rect">▭ Rectangle</option>
+              <option value="round">▢ Rounded</option>
+              <option value="ellipse">◯ Ellipse</option>
+              <option value="tri">△ Triangle</option>
+              <option value="diamond">◇ Diamond</option>
+              <option value="star">★ Star</option>
+              <option value="arrow">➜ Arrow</option>
+              <option value="line">─ Line</option>
+            </select>
+            <button class="btn-secondary" id="unf" title="Clear Formatting">Tx Plain</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LAYOUT & PAGE SETUP -->
+      <div class="prop-tab-pane" id="pane-layout" style="display: none;">
+        <div class="prop-group">
+          <div class="prop-group-title">Page Dimensions</div>
+          <div class="prop-row">
+            <div class="prop-field" style="flex: 2;">
+              <label>Paper Size</label>
+              <select class="prop-select" id="psz">
+                <option>A4</option>
+                <option>A3</option>
+                <option>A5</option>
+                <option>B5</option>
+                <option>Letter</option>
+                <option>Legal</option>
+                <option>Tabloid</option>
+                <option>Slide 16:9</option>
+                <option>Square</option>
+                <option>Custom</option>
+              </select>
+            </div>
+            <div class="prop-field" style="flex: 1;">
+              <label>Orientation</label>
+              <button class="btn-secondary" id="orient" style="justify-content:center;height:32px;">▯ Portrait</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">
+            <span>Margins (mm)</span>
+            <button class="icon-btn" id="mgon" style="width:24px;height:24px;" title="Show Margin Guides">⬚</button>
+          </div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Top</label>
+              <input type="number" class="prop-input" id="mt" min="0" max="80" value="4">
+            </div>
+            <div class="prop-field">
+              <label>Right</label>
+              <input type="number" class="prop-input" id="mr" min="0" max="80" value="17">
+            </div>
+            <div class="prop-field">
+              <label>Bottom</label>
+              <input type="number" class="prop-input" id="mb" min="0" max="80" value="4">
+            </div>
+            <div class="prop-field">
+              <label>Left</label>
+              <input type="number" class="prop-input" id="ml" min="0" max="80" value="17">
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">Header & Footer</div>
+          <div class="prop-row">
+            <button class="btn-secondary" id="logob" style="font-size:12px;">🖼 Upload Logo</button>
+            <button class="btn-secondary" id="nologo" style="font-size:12px;">✕ Remove Logo</button>
+          </div>
+          <div class="prop-field">
+            <label>Header Text (Left)</label>
+            <input type="text" class="prop-input" id="hfl" placeholder="Header text">
+          </div>
+          <div class="prop-field">
+            <label>Footer Text (Left)</label>
+            <input type="text" class="prop-input" id="ffl" placeholder="Footer text">
+          </div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Header H (px)</label>
+              <input type="number" class="prop-input" id="hh" min="0" max="200" value="56">
+            </div>
+            <div class="prop-field">
+              <label>Footer H (px)</label>
+              <input type="number" class="prop-input" id="fh" min="0" max="200" value="56">
+            </div>
+          </div>
+          <div class="prop-row" style="gap:14px;margin-top:4px;">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="hfh" checked> Show Header
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="hff" checked> Show Footer
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="hfp" checked> Page Numbers
+            </label>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">Table of Contents Page</div>
+          <div class="prop-row between">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="tocon" checked> Show TOC Page
+            </label>
+            <button class="btn-secondary" id="toctr" style="font-size:12px;">⟳ Refresh TOC</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: OBJECT & POSITION -->
+      <div class="prop-tab-pane" id="pane-object" style="display: none;">
+        <div class="prop-group">
+          <div class="prop-group-title">Object Position & Size</div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>X (px)</label>
+              <input type="number" class="prop-input" id="ox">
+            </div>
+            <div class="prop-field">
+              <label>Y (px)</label>
+              <input type="number" class="prop-input" id="oy">
+            </div>
+            <div class="prop-field">
+              <label>W (px)</label>
+              <input type="number" class="prop-input" id="ow">
+            </div>
+            <div class="prop-field">
+              <label>H (px)</label>
+              <input type="number" class="prop-input" id="oh">
+            </div>
+          </div>
+          <div class="prop-row between" style="margin-top:4px;">
+            <span style="font-size:11px;color:var(--muted)">Layer Order</span>
+            <div style="display:flex;gap:6px;">
+              <button class="btn-secondary" id="ofr" style="font-size:12px;">⤒ Front</button>
+              <button class="btn-secondary" id="obk" style="font-size:12px;">⤓ Back</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">Align to Page</div>
+          <div class="button-group" style="justify-content:space-around;">
+            <button class="btn-toggle" data-oa="left" title="Align Left">⇤</button>
+            <button class="btn-toggle" data-oa="center" title="Align Center">↔</button>
+            <button class="btn-toggle" data-oa="right" title="Align Right">⇥</button>
+            <button class="btn-toggle" data-oa="top" title="Align Top">⤒</button>
+            <button class="btn-toggle" data-oa="middle" title="Align Middle">↕</button>
+            <button class="btn-toggle" data-oa="bottom" title="Align Bottom">⤓</button>
+          </div>
+        </div>
+
+        <div class="prop-group" id="img-props-group">
+          <div class="prop-group-title">Image Mode & Wrap</div>
+          <div class="button-group" style="justify-content:space-between;">
+            <button class="btn-toggle" data-a="left" title="Image Left">◧</button>
+            <button class="btn-toggle" data-a="center" title="Image Center">▣</button>
+            <button class="btn-toggle" data-a="right" title="Image Right">◨</button>
+            <button class="btn-toggle" data-a="wrapl" title="Wrap Left">⬓L</button>
+            <button class="btn-toggle" data-a="wrapr" title="Wrap Right">⬓R</button>
+            <button class="btn-toggle" data-a="free" title="Free Move">✥</button>
+          </div>
+          <div class="prop-row" style="margin-top:6px;">
+            <div class="prop-field">
+              <label>Space (px)</label>
+              <input type="number" class="prop-input" id="isp" value="12">
+            </div>
+            <div class="prop-field">
+              <label>Width (%)</label>
+              <input type="range" id="iw" min="5" max="100" value="60">
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-group" id="shp-props-group">
+          <div class="prop-group-title">Fill & Border</div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Fill</label>
+              <input type="color" class="prop-input" id="ofill" value="#7b5cff">
+            </div>
+            <div class="prop-field">
+              <label>Border</label>
+              <input type="color" class="prop-input" id="ostk" value="#1b1824">
+            </div>
+            <div class="prop-field">
+              <label>Border W</label>
+              <input type="number" class="prop-input" id="osw" min="0" max="20" value="0">
+            </div>
+          </div>
+        </div>
+
+        <div class="prop-row" style="margin-top:6px;">
+          <button class="btn-secondary" id="mvp" style="flex:1;">◂ Move to Prev Page</button>
+          <button class="btn-secondary" id="mvn" style="flex:1;">Move to Next Page ▸</button>
+        </div>
+        <button class="btn-secondary" id="odel" style="color:var(--danger);border-color:rgba(239,68,68,0.3);margin-top:6px;">
+          🗑 Delete Selected Element
+        </button>
+      </div>
+
+      <!-- TAB 4: TABLE PROPERTIES -->
+      <div class="prop-tab-pane" id="pane-table" style="display: none;">
+        <div class="prop-group">
+          <div class="prop-group-title">Rows & Columns</div>
+          <div class="prop-row">
+            <button class="btn-secondary" data-tb="rowb" style="flex:1;">⤒ Row Above</button>
+            <button class="btn-secondary" data-tb="rowa" style="flex:1;">⤓ Row Below</button>
+            <button class="btn-secondary" data-tb="rowd" style="flex:1;color:var(--danger)">− Row</button>
+          </div>
+          <div class="prop-row">
+            <button class="btn-secondary" data-tb="colb" style="flex:1;">◧ Col Left</button>
+            <button class="btn-secondary" data-tb="cola" style="flex:1;">Col Right ◨</button>
+            <button class="btn-secondary" data-tb="cold" style="flex:1;color:var(--danger)">− Col</button>
+          </div>
+          <div class="prop-row">
+            <button class="btn-secondary" data-tb="hdr" style="flex:1;">▤ Toggle Header</button>
+            <button class="btn-secondary" data-tb="tbld" style="flex:1;color:var(--danger)">🗑 Delete Table</button>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">Table & Cell Styling</div>
+          <div class="prop-field">
+            <label>Apply Changes To</label>
+            <select class="prop-select" id="tsc">
+              <option value="cell">Current Cell</option>
+              <option value="row">Selected Row</option>
+              <option value="col">Selected Column</option>
+              <option value="table">Whole Table</option>
+            </select>
+          </div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Shading</label>
+              <input type="color" class="prop-input" id="tshade" value="#e8e3ff">
+            </div>
+            <div class="prop-field">
+              <label>Border Color</label>
+              <input type="color" class="prop-input" id="tbc" value="#bbbbbb">
+            </div>
+            <div class="prop-field">
+              <label>Border W</label>
+              <input type="number" class="prop-input" id="tbw" min="0" max="10" value="1">
+            </div>
+            <div class="prop-field">
+              <label>Padding</label>
+              <input type="number" class="prop-input" id="tpd" min="0" max="40" value="6">
+            </div>
+          </div>
+          <div class="prop-row">
+            <div class="prop-field" style="flex:1.5;">
+              <label>Table Width</label>
+              <select class="prop-select" id="tw">
+                <option value="">Width Presets</option>
+                <option value="100%">100% Full</option>
+                <option value="75%">75% Wide</option>
+                <option value="50%">50% Medium</option>
+                <option value="auto">Auto Fit</option>
+              </select>
+            </div>
+            <div class="prop-field" style="flex:1;">
+              <label>Align</label>
+              <div class="button-group">
+                <button class="btn-toggle" data-tp="left">◧</button>
+                <button class="btn-toggle" data-tp="center">▣</button>
+                <button class="btn-toggle" data-tp="right">◨</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: COVER PAGE PROPERTIES -->
+      <div class="prop-tab-pane" id="pane-cover" style="display: none;">
+        <div class="prop-group">
+          <div class="prop-group-title">
+            <span>Cover Page</span>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="cvon-check" checked> Enable Cover
+            </label>
+          </div>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Cover BG Color</label>
+              <input type="color" class="prop-input" id="cvbg" value="#00006e">
+            </div>
+            <div class="prop-field">
+              <label>Cover Text Color</label>
+              <input type="color" class="prop-input" id="cvtx" value="#ffffff">
+            </div>
+          </div>
+          <div class="prop-row">
+            <button class="btn-secondary" id="cvimg" style="flex:1;">🖼 BG Image</button>
+            <button class="btn-secondary" id="cvclr" style="flex:1;">⌫ Clear BG</button>
+          </div>
+        </div>
+
+        <div class="prop-group">
+          <div class="prop-group-title">Text Alignment & Logo</div>
+          <div class="prop-row between">
+            <div class="button-group">
+              <button class="btn-toggle" data-al="left" title="Left">⇤</button>
+              <button class="btn-toggle" data-al="center" title="Center">↔</button>
+              <button class="btn-toggle" data-al="right" title="Right">⇥</button>
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer;">
+              <input type="checkbox" id="cvlg-check" checked> Show Logo
+            </label>
+          </div>
+          <button class="btn-secondary" id="cvreset" style="margin-top:6px;">↺ Reset Cover Appearance</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Properties Footer: Cursor & Formatting Status -->
+    <div class="props-status-footer">
+      <div id="fmtstat" title="Style and formatting at the cursor">Normal Paragraph · 12pt</div>
+      <div id="cursor-pos">Cursor on Page 1</div>
+    </div>
+  </aside>
+</main>
+
+<!-- ============================================================
+     DIALOGS & MODALS
+     ============================================================ -->
+
+<!-- 1. ADVANCED FILE IMPORT DIALOG (WITH INSERT AFTER TOC OPTION) -->
+<dialog id="impdlg" class="dlg">
+  <div class="dlg-header">
+    <h3>📄 Import Document File</h3>
+    <button class="dlg-close" id="imp-close">✕</button>
+  </div>
+
+  <div class="import-drop-zone" id="import-drop-zone">
+    <div class="import-icon">📥</div>
+    <div style="font-weight:600;font-size:14px;color:var(--text);">Drop Word, PDF, or Presentation here</div>
+    <div style="font-size:12px;color:var(--muted);margin-top:4px;">Supports .docx, .pdf, .pptx, .idml, .rtf, .html, .txt, .json</div>
+    <button class="btn-secondary" style="margin-top:12px;" onclick="$('file').click()">Browse Files...</button>
+  </div>
+
+  <div class="section-subtitle">Where should the imported text be placed?</div>
+  <div class="destination-radio-group">
+    <label class="dest-option">
+      <input type="radio" name="import-dest" value="after_toc" checked>
+      <div class="dest-option-text">
+        <b>Insert text after TOC (Table of Contents) page</b>
+        <span>Places imported pages immediately after the contents page (Page 2 / 3)</span>
+      </div>
+    </label>
+    <label class="dest-option">
+      <input type="radio" name="import-dest" value="end">
+      <div class="dest-option-text">
+        <b>Append text at the end of the document</b>
+        <span>Adds new pages after the current last page</span>
+      </div>
+    </label>
+    <label class="dest-option">
+      <input type="radio" name="import-dest" value="cursor">
+      <div class="dest-option-text">
+        <b>Insert at current cursor position</b>
+        <span>Flows the imported text into the active paragraph</span>
+      </div>
+    </label>
+    <label class="dest-option">
+      <input type="radio" name="import-dest" value="replace">
+      <div class="dest-option-text">
+        <b>Replace entire document</b>
+        <span>Replaces current text pages with the imported content</span>
+      </div>
+    </label>
+  </div>
+
+  <div style="display:flex;justify-content:flex-end;gap:10px;">
+    <button class="btn-secondary" id="imp-cancel">Cancel</button>
+  </div>
+</dialog>
+
+<!-- 2. AI AUTO-GENERATE & DESIGN CHOOSER MODAL -->
+<dialog id="aichooserdlg" class="dlg" style="width: min(680px, 94vw);">
+  <div class="dlg-header">
+    <div>
+      <h3>✨ Choose Design & Generate Screen</h3>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px;">Pick a layout format — AI will auto-generate tailored text & create your screen!</div>
+    </div>
+    <button class="dlg-close" id="chooser-close">✕</button>
+  </div>
+
+  <div class="ai-chooser-grid" id="ai-chooser-grid"></div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;">
+    <span style="font-size:12px;color:var(--muted);" id="chooser-selected-info">Select a design card above to generate</span>
+    <button class="btn-primary" id="chooser-confirm-btn" disabled>Generate Respective Screen</button>
+  </div>
+</dialog>
+
+<!-- 3. STYLE CREATOR / EDITOR DIALOG -->
+<dialog id="stdlg" class="dlg">
+  <div class="dlg-header">
+    <h3 id="sdt">Style</h3>
+    <button class="dlg-close" id="sdc-x">✕</button>
+  </div>
+  <div class="prop-group" style="background:transparent;border:0;padding:0;">
+    <div class="prop-field">
+      <label>Style Name</label>
+      <input id="sn" type="text" class="prop-input">
+    </div>
+    <div class="prop-row">
+      <div class="prop-field">
+        <label>Font</label>
+        <select id="sff" class="prop-select">
+          <option>Figtree</option>
+          <option>Mukta</option>
+          <option>Bricolage Grotesque</option>
+          <option>Georgia</option>
+          <option>Times New Roman</option>
+          <option>Courier New</option>
+          <option>Arial</option>
+        </select>
+      </div>
+      <div class="prop-field">
+        <label>Size (pt)</label>
+        <input id="sfs" type="number" min="6" max="200" class="prop-input">
+      </div>
+      <div class="prop-field">
+        <label>Color</label>
+        <input id="sc" type="color" class="prop-input">
+      </div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-field">
+        <label>Weight</label>
+        <select id="swt" class="prop-select"><option value="">Normal</option><option value="1">Bold</option></select>
+      </div>
+      <div class="prop-field">
+        <label>Italic / Underline</label>
+        <select id="siu" class="prop-select"><option value="">None</option><option value="i">Italic</option><option value="u">Underline</option><option value="iu">Both</option></select>
+      </div>
+      <div class="prop-field">
+        <label>Alignment</label>
+        <select id="sal" class="prop-select"><option>left</option><option>center</option><option>right</option><option>justify</option></select>
+      </div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-field">
+        <label>Line Spacing</label>
+        <select id="slh" class="prop-select"><option>1</option><option>1.2</option><option>1.5</option><option>1.8</option></select>
+      </div>
+      <div class="prop-field">
+        <label>Space Before (pt)</label>
+        <input id="ssb" type="number" class="prop-input">
+      </div>
+      <div class="prop-field">
+        <label>Space After (pt)</label>
+        <input id="ssa" type="number" class="prop-input">
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px;">
+    <button class="btn-secondary" id="sdc" type="button">Cancel</button>
+    <button class="btn-primary" id="sds" type="button">Save Style</button>
+  </div>
+</dialog>
+
+<!-- 4. ANTHROPIC API KEY DIALOG -->
+<dialog id="keydlg" class="dlg">
+  <div class="dlg-header">
+    <h3>⚙ AI API Key Settings</h3>
+    <button class="dlg-close" id="key-x">✕</button>
+  </div>
+  <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px;line-height:1.5;">
+    Paste an <b>Anthropic API key</b> (starts with <code>sk-ant-</code>) from <b>console.anthropic.com</b>. Your key is stored securely in this browser only.
+  </p>
+  <div class="prop-field" style="margin-bottom:10px;">
+    <label>API Key</label>
+    <input id="kin" type="password" class="prop-input" placeholder="sk-ant-..." autocomplete="off">
+  </div>
+  <div class="prop-field" style="margin-bottom:12px;">
+    <label>Model</label>
+    <input id="kmo" type="text" class="prop-input" value="claude-sonnet-5-5">
+  </div>
+  <p id="kmsg" style="min-height:20px;font-size:12.5px;"></p>
+  <div style="display:flex;justify-content:space-between;margin-top:14px;">
+    <button class="btn-secondary" id="kdel" type="button" style="color:var(--danger)">Remove Key</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-secondary" id="ktest" type="button">Test Key</button>
+      <button class="btn-secondary" id="kx" type="button">Cancel</button>
+      <button class="btn-primary" id="ksave" type="button">Save Key</button>
+    </div>
+  </div>
+</dialog>
+
+<!-- Hidden File Inputs -->
+<input type="file" id="file" hidden>
+<input type="file" id="logoin" hidden accept="image/*">
+<input type="file" id="cvimgin" hidden accept="image/*">
+
+<script>
+const RIMG={"w": "data:image/png;base64,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", "l": "data:image/png;base64,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", "n": "data:image/png;base64,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"};
+
+const FONTS="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;500;600&family=Mukta:wght@300;400;700&display=swap";
+const RES_STRIP="linear-gradient(90deg,#0000ff 0 25%,#7f04a4 25% 40%,#90131e 40% 60%,#b58001 60% 80%,#005f35 80%)";
+document.execCommand("styleWithCSS",false,true);
+
+const $=i=>document.getElementById(i), page=$("page");
+let mode="gen", lastText="", selImg=null, selObj=null, objFocus=false;
+let rng, tm, tid=0, z=1, cur=0, plainNext=false, tocSig="", posTxt="", wordsN=0;
+let ST={};
+const store=(k,v)=>{try{v===undefined?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+const load=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+try{ST=JSON.parse(load("ap_styles"))||{}}catch(e){}
+
+const MM=3.7795, slug=n=>n.replace(/\W+/g,"-");
+const PS={
+  A3:[1123,1587], A4:[794,1123], A5:[559,794], B5:[665,945],
+  Letter:[816,1056], Legal:[816,1344], Tabloid:[1056,1632],
+  "Slide 16:9":[720,1280], Square:[800,800]
+};
+const PG={size:"A4",mt:4,mr:17,mb:4,ml:17,hh:56,fh:56,guides:false,custom:null};
+const CV={on:true,bg:"",img:"",tx:"",al:"",lg:true};
+const DOC={toc:true};
+const HF={logo:"",hl:"Your company",fl:"Confidential",h:true,f:true,pn:true,custom:false};
+
+const E=n=>n&&(n.nodeType==1?n:n.parentElement);
+const host=()=>rng&&E(rng.startContainer)&&E(rng.startContainer).closest('[contenteditable="true"]');
+const ptx=s=>s.replace(/[<>&]/g,c=>({"<":"&lt;",">":"&gt;","&":"&amp;"}[c]));
+const esc=s=>s.replace(/&/g,"&amp;").replace(/</g,"&lt;");
+
+const sheetHTML=(h,k="pg",auto)=>`<section class="sheet ${k}"${auto?' data-auto="1"':""}><header class="hd"></header><div class="body" contenteditable="${k=="pg"}">${h||"<p><br></p>"}</div><footer class="ft"></footer></section>`;
+const lastToc=()=>[...page.querySelectorAll(".sheet.tocpg")].pop()||page.querySelector(".sheet.cover");
+function contentBody(){
+  let s=page.querySelector(".sheet.pg");
+  if(!s){
+    const t=lastToc()||page.querySelector(".sheet");
+    t.insertAdjacentHTML("afterend",sheetHTML());
+    renderHF();
+    s=page.querySelector(".sheet.pg");
+  }
+  return s.querySelector(".body");
+}
+
+/* ============================================================
+   EXPANDED DESIGN TEMPLATES CATALOG (12 DIVERSE DESIGNS)
+   ============================================================ */
+const DS=[
+{
+  id:"default_doc",
+  n:"Default Document",
+  cat:"doc",
+  size:"A4",
+  desc:"Standard business document with cover, TOC and clean headings.",
+  mockupClass:"p-doc",
+  bgGradient:"linear-gradient(135deg, #1d4ed8, #0f172a)",
+  toc:1, cover:1,
+  pages:d=>[`<h1>${esc(d.title)}</h1>${d.sub?`<p style="font-size:1.15em;color:#555">${esc(d.sub)}</p>`:""}${d.rest.join("")}`]
+},
+{
+  id:"executive_report",
+  n:"Executive Report",
+  cat:"doc",
+  size:"A4",
+  desc:"Professional leadership briefing with key metrics and callouts.",
+  mockupClass:"p-doc",
+  bgGradient:"linear-gradient(135deg, #0f766e, #042f2e)",
+  toc:1, cover:1,
+  pages:d=>[
+    `<div style="border-bottom:2px solid var(--c);padding-bottom:12px;margin-bottom:20px;">
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent2)">EXECUTIVE BRIEF</span>
+      <h1 style="font-size:2.4em;margin:4px 0 8px;line-height:1.1">${esc(d.title)}</h1>
+      <p style="font-size:1.15em;color:#4b5563;margin:0;">${esc(d.sub)}</p>
+    </div>
+    <div style="background:#f6f4fc;border-left:4px solid var(--c);padding:14px 18px;border-radius:6px;margin-bottom:20px;">
+      <h3 style="margin:0 0 6px;font-size:1.1em;color:var(--c)">Key Strategic Highlights</h3>
+      <p style="margin:0;font-size:0.95em;">This report delivers essential findings, actionable insights, and operational milestones.</p>
+    </div>
+    ${d.rest.join("")}`
+  ]
+},
+{
+  id:"tech_poster",
+  n:"Tech Conference Poster",
+  cat:"poster",
+  size:"A3",
+  m:[0,0,12,0],
+  hf:false,
+  desc:"High-impact conference poster with speaker blocks and badge CTA.",
+  mockupClass:"p-poster",
+  bgGradient:"linear-gradient(150deg, #1e1b4b, #4338ca)",
+  pages:d=>[
+    `<div style="background:linear-gradient(165deg,var(--c),var(--d));color:#fff;padding:100px 70px 70px;text-align:center;">
+      <span style="display:inline-block;padding:5px 16px;border-radius:999px;background:rgba(255,255,255,0.15);font-size:1.1em;letter-spacing:0.1em;font-weight:600;margin-bottom:20px;">ANNUAL SUMMIT 2026</span>
+      <h1 style="font-size:4.4em;line-height:1.05;color:#fff;margin:0;letter-spacing:-0.02em;">${esc(d.title)}</h1>
+      <p style="font-size:1.6em;margin:20px auto 0;max-width:85%;color:#e0e7ff;line-height:1.3">${esc(d.sub)}</p>
+    </div>
+    <div style="padding:40px 70px;font-size:1.15em;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:30px;">
+        <div style="background:#f8f7fd;padding:20px;border-radius:12px;border:1px solid #e0dced;">
+          <h3 style="color:var(--c);margin-top:0;">Event Highlights</h3>
+          <p>Keynotes, workshops, and high-impact peer networking sessions.</p>
+        </div>
+        <div style="background:#f8f7fd;padding:20px;border-radius:12px;border:1px solid #e0dced;">
+          <h3 style="color:var(--c);margin-top:0;">Registration</h3>
+          <p>Early bird passes open now. Reserve your seat online today.</p>
+        </div>
+      </div>
+      ${d.rest.join("")}
+    </div>`
+  ]
+},
+{
+  id:"art_poster",
+  n:"Creative Art Poster",
+  cat:"poster",
+  size:"A3",
+  m:[0,0,0,0],
+  hf:false,
+  desc:"Artistic typography poster with bold contrasts and modern accents.",
+  mockupClass:"p-poster",
+  bgGradient:"linear-gradient(135deg, #ff007a, #7928ca)",
+  pages:d=>[
+    `<div style="height:100%;background:#090812;color:#fff;padding:120px 80px;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;">
+      <div>
+        <p style="color:var(--accent2);font-weight:700;letter-spacing:0.25em;text-transform:uppercase;margin:0 0 20px;">EXHIBITION & SHOWCASE</p>
+        <h1 style="font-size:5.2em;line-height:0.98;margin:0;color:#fff;letter-spacing:-0.03em;">${esc(d.title)}</h1>
+        <p style="font-size:1.8em;color:#cfc9e8;margin:30px 0 0;max-width:90%">${esc(d.sub)}</p>
+      </div>
+      <div style="border-top:1px solid rgba(255,255,255,0.2);padding-top:40px;display:grid;grid-template-columns:1fr 1fr;gap:40px;font-size:1.2em;">
+        <div>${d.rest.slice(0,1).join("")||"<p>Immerse in creative visions that redefine boundaries.</p>"}</div>
+        <div style="text-align:right;"><span style="display:inline-block;padding:14px 28px;background:var(--accent);color:#fff;border-radius:999px;font-weight:700;">EXPLORE GALLERY</span></div>
+      </div>
+    </div>`
+  ]
+},
+{
+  id:"web_banner",
+  n:"Digital Web Banner",
+  cat:"banner",
+  size:"Custom",
+  custom:[400, 1200],
+  land:1,
+  m:[0,0,0,0],
+  hf:false,
+  desc:"Ultra-wide web display banner with strong hero CTA (1200 x 400).",
+  mockupClass:"p-banner",
+  bgGradient:"linear-gradient(100deg, #111827, #374151)",
+  pages:d=>[
+    `<div style="display:flex;align-items:center;justify-content:space-between;height:400px;background:linear-gradient(110deg,var(--d),var(--c));color:#fff;padding:0 70px;overflow:hidden;box-sizing:border-box;">
+      <div style="flex:1;max-width:65%;">
+        <span style="background:rgba(255,255,255,0.18);padding:4px 14px;border-radius:999px;font-size:1em;font-weight:600;letter-spacing:0.05em;display:inline-block;margin-bottom:14px;">SPECIAL ANNOUNCEMENT</span>
+        <h1 style="font-size:3.4em;line-height:1.05;color:#fff;margin:0;">${esc(d.title)}</h1>
+        <p style="font-size:1.35em;margin:12px 0 0;color:#e0e7ff;">${esc(d.sub)}</p>
+      </div>
+      <div style="flex:none;text-align:center;">
+        <div style="background:#fff;color:var(--c);padding:18px 36px;border-radius:999px;font-weight:700;font-size:1.3em;box-shadow:0 8px 24px rgba(0,0,0,0.3);cursor:pointer;">Get Started Now</div>
+      </div>
+    </div>`
+  ]
+},
+{
+  id:"promo_banner",
+  n:"Promotional Sale Banner",
+  cat:"banner",
+  size:"Custom",
+  custom:[500, 1200],
+  land:1,
+  m:[0,0,0,0],
+  hf:false,
+  desc:"High-energy promotional landscape banner with discount badge.",
+  mockupClass:"p-banner",
+  bgGradient:"linear-gradient(110deg, #e11d48, #4c0519)",
+  pages:d=>[
+    `<div style="display:flex;align-items:center;height:500px;background:linear-gradient(120deg,#b91c1c,#450a0a);color:#fff;padding:0 80px;gap:60px;box-sizing:border-box;">
+      <div style="background:#fff;color:#b91c1c;width:150px;height:150px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,0.4);flex-shrink:0;">
+        <span style="font-size:14px;font-weight:700;letter-spacing:0.1em;">UP TO</span>
+        <span style="font-size:48px;font-weight:800;line-height:1;">50%</span>
+        <span style="font-size:12px;font-weight:700;">OFF SALE</span>
+      </div>
+      <div style="flex:1;">
+        <h1 style="font-size:3.8em;line-height:1.02;margin:0;color:#fff;">${esc(d.title)}</h1>
+        <p style="font-size:1.4em;margin:14px 0 24px;color:#fecaca;">${esc(d.sub)}</p>
+        <span style="background:var(--accent2);color:#150a04;padding:12px 28px;border-radius:999px;font-weight:700;font-size:1.2em;display:inline-block;">CLAIM OFFER TODAY</span>
+      </div>
+    </div>`
+  ]
+},
+{
+  id:"social_banner",
+  n:"Social Media Header",
+  cat:"banner",
+  size:"Square",
+  m:[0,0,0,0],
+  hf:false,
+  desc:"Square card ideal for Instagram, LinkedIn and product posts (800 x 800).",
+  mockupClass:"p-banner",
+  bgGradient:"linear-gradient(135deg, #6366f1, #a855f7)",
+  pages:d=>[
+    `<div style="height:800px;background:linear-gradient(135deg,var(--c),#1e1b4b);color:#fff;padding:70px;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;text-align:center;">
+      <span style="font-size:1.1em;letter-spacing:0.2em;color:var(--accent2);font-weight:700;">FEATURED SPOTLIGHT</span>
+      <div>
+        <h1 style="font-size:3.6em;line-height:1.08;color:#fff;margin:0;">${esc(d.title)}</h1>
+        <p style="font-size:1.45em;color:#e0e7ff;margin:20px auto 0;max-width:90%">${esc(d.sub)}</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.08);backdrop-filter:blur(8px);padding:24px;border-radius:16px;border:1px solid rgba(255,255,255,0.15);">
+        ${d.rest.slice(0,1).join("")||"<p style='margin:0;font-size:1.15em;'>Follow @adorepage for updates, tutorials, and new creative templates.</p>"}
+      </div>
+    </div>`
+  ]
+},
+{
+  id:"business_flyer",
+  n:"Business Services Flyer",
+  cat:"flyer",
+  size:"A4",
+  m:[0,0,8,0],
+  hf:false,
+  desc:"Clean marketing flyer with dual-tone header, services grid and footer.",
+  mockupClass:"p-flyer",
+  bgGradient:"linear-gradient(135deg, #0284c7, #0369a1)",
+  pages:d=>[
+    `<div style="background:var(--c);color:#fff;padding:70px 60px 50px;">
+      <span style="background:rgba(255,255,255,0.15);padding:3px 12px;border-radius:999px;font-size:0.85em;font-weight:600;letter-spacing:0.05em;">YOUR PARTNER IN GROWTH</span>
+      <h1 style="font-size:3.2em;line-height:1.05;color:#fff;margin:10px 0 0;">${esc(d.title)}</h1>
+      <p style="font-size:1.3em;margin:12px 0 0;color:#e0f2fe;">${esc(d.sub)}</p>
+    </div>
+    <div style="height:120px;background:linear-gradient(100deg,var(--d),var(--accent2));opacity:0.95;"></div>
+    <div style="padding:34px 60px;font-size:1.05em;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px;">
+        <div style="border-left:3px solid var(--c);padding-left:14px;">
+          <h3 style="margin:0 0 6px;color:var(--c)">Professional Quality</h3>
+          <p style="margin:0;font-size:0.95em;">Engineered for accuracy, reliability, and measurable business impact.</p>
+        </div>
+        <div style="border-left:3px solid var(--c);padding-left:14px;">
+          <h3 style="margin:0 0 6px;color:var(--c)">Expert Support</h3>
+          <p style="margin:0;font-size:0.95em;">Dedicated specialists available to help you achieve goals faster.</p>
+        </div>
+      </div>
+      ${d.rest.join("")}
+    </div>`
+  ]
+},
+{
+  id:"product_flyer",
+  n:"Product Launch Flyer",
+  cat:"flyer",
+  size:"A4",
+  m:[0,0,8,0],
+  hf:false,
+  desc:"Product announcement flyer with feature list, badge and order button.",
+  mockupClass:"p-flyer",
+  bgGradient:"linear-gradient(135deg, #ea580c, #c2410c)",
+  pages:d=>[
+    `<div style="background:linear-gradient(145deg,#1f2937,#111827);color:#fff;padding:80px 60px 60px;text-align:center;">
+      <span style="color:var(--accent2);font-weight:700;letter-spacing:0.15em;font-size:0.9em;">NEW RELEASE</span>
+      <h1 style="font-size:3.5em;line-height:1.05;color:#fff;margin:12px 0 0;">${esc(d.title)}</h1>
+      <p style="font-size:1.35em;margin:14px 0 0;color:#9ca3af;">${esc(d.sub)}</p>
+    </div>
+    <div style="padding:40px 60px;font-size:1.05em;">
+      <h2 style="color:var(--c);margin-top:0;">Engineered for Peak Performance</h2>
+      <p>Discover next-generation capabilities crafted to elevate productivity and redefine user expectations.</p>
+      ${d.rest.join("")}
+    </div>`
+  ]
+},
+{
+  id:"concert_flyer",
+  n:"Concert & Event Flyer",
+  cat:"flyer",
+  size:"A4",
+  m:[0,0,0,0],
+  hf:false,
+  desc:"Dark neon concert flyer with artist lineup and ticket details.",
+  mockupClass:"p-flyer",
+  bgGradient:"linear-gradient(135deg, #831843, #500724)",
+  pages:d=>[
+    `<div style="height:100%;background:#0a0714;color:#fff;padding:80px 60px;display:flex;flex-direction:column;justify-content:space-between;box-sizing:border-box;">
+      <div>
+        <span style="color:#f472b6;letter-spacing:0.2em;font-weight:700;font-size:0.9em;">LIVE MUSIC & EXPERIENCES</span>
+        <h1 style="font-size:4.2em;line-height:1.02;color:#fff;margin:16px 0 0;">${esc(d.title)}</h1>
+        <p style="font-size:1.5em;color:#fbcfe8;margin:16px 0 0;">${esc(d.sub)}</p>
+      </div>
+      <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:24px;">
+        <h3 style="color:#f472b6;margin-top:0;">LINEUP & SCHEDULE</h3>
+        ${d.rest.join("")}
+      </div>
+    </div>`
+  ]
+},
+{
+  id:"brochure_trifold",
+  n:"Corporate Tri-Fold Brochure",
+  cat:"brochure",
+  size:"A4",
+  land:1,
+  m:[0,0,0,0],
+  hf:false,
+  desc:"Classic 3-panel corporate brochure layout (About, Contact, Services).",
+  mockupClass:"p-brochure",
+  bgGradient:"linear-gradient(135deg, #0f766e, #134e4a)",
+  pages:d=>{
+    const g=[[],[],[]];
+    d.rest.forEach((x,i)=>g[i%3].push(x));
+    const col=(h,bg,fg)=>`<div style="padding:44px 34px;background:${bg};color:${fg};height:794px;overflow:hidden;box-sizing:border-box;">${h}</div>`,
+          grid=a=>`<div style="display:grid;grid-template-columns:1fr 1fr 1fr;height:794px;">${a.join("")}</div>`;
+    return[
+      grid([
+        col(g[0].join("")||"<h2>About Us</h2><p>Share your vision and business story with confidence.</p>","#ffffff","#1b1824"),
+        col("<h2>Get In Touch</h2><p>hello@adorepage.studio</p><p>+1 (800) 555-0199</p><p>100 Innovation Blvd, Tech Park</p>","#f4f2f9","#1b1824"),
+        col(`<h1 style="color:#fff;font-size:2.8em;margin-top:200px;line-height:1.1;">${esc(d.title)}</h1><p style="font-size:1.25em;color:#e0e7ff;margin-top:14px;">${esc(d.sub)}</p>`,"var(--c)","#ffffff")
+      ]),
+      grid([
+        col(g[1].join("")||"<h2>Core Services</h2><p>Discover strategic solutions customized for your needs.</p>","#ffffff","#1b1824"),
+        col(g[2].join("")||"<h2>Why Choose Us</h2><p>Proven track record of quality and client satisfaction.</p>","#f4f2f9","#1b1824"),
+        col('<h2 style="color:#fff">Next Steps</h2><p style="color:#e0e7ff">Schedule your initial consultation today.</p>',"var(--d)","#ffffff")
+      ])
+    ];
+  }
+},
+{
+  id:"luxury_invitation",
+  n:"Luxury Invitation Card",
+  cat:"card",
+  size:"A5",
+  m:[12,12,12,12],
+  hf:false,
+  desc:"Refined invitation with double borders and elegant serif typography.",
+  mockupClass:"p-invite",
+  bgGradient:"linear-gradient(135deg, #b45309, #78350f)",
+  pages:d=>[
+    `<div style="border:3px double var(--c);height:630px;padding:60px 40px;text-align:center;box-sizing:border-box;display:flex;flex-direction:column;justify-content:center;">
+      <p style="letter-spacing:0.3em;color:var(--c);font-weight:700;font-size:0.9em;margin:0 0 16px;">YOU ARE CORDIALLY INVITED</p>
+      <h1 style="font-size:2.8em;margin:0 0 16px;color:var(--c);font-family:'Mukta',serif;">${esc(d.title)}</h1>
+      <p style="font-size:1.2em;color:#4b5563;margin:0 0 24px;">${esc(d.sub)}</p>
+      <div style="border-top:1px solid #ddd;border-bottom:1px solid #ddd;padding:16px 0;margin:0 auto 24px;max-width:80%;">
+        ${d.rest.join("")}
+      </div>
+      <p style="font-size:0.9em;color:#6b7280;margin:0;letter-spacing:0.05em;">RSVP BY THE 15TH · RECEPTION TO FOLLOW</p>
+    </div>`
+  ]
+}
+];
+
+let activeDesign=-1;
+
+/* Document Themes */
+const TP=[
+  {n:"Resulticks Template",cv:"res",c:"#151e5c",d:"#00006e",f:"Mukta",bf:"Mukta",strip:RES_STRIP,logo:RIMG.l,hl:"",fl:"Copyright © RESULTICKS Solution Inc",cm:"Copyright © RESULTICKS Solution Inc"},
+  {n:"Corporate report",cv:"band",c:"#1d4ed8",d:"#0f172a",f:"Georgia"},
+  {n:"Newsletter",cv:"center",c:"#e11d48",d:"#4c0519"},
+  {n:"Brochure",cv:"full",c:"#0f766e",d:"#042f2e"},
+  {n:"Proposal",cv:"band",c:"#b45309",d:"#451a03",f:"Georgia"},
+  {n:"Magazine",cv:"full",c:"#db2777",d:"#1f1226"},
+  {n:"Minimal",cv:"center",c:"#111827",d:"#111827"},
+  {n:"Violet",cv:"full",c:"#7b5cff",d:"#1b1824"}
+];
+
+/* Render Left Sidebar Designs */
+function renderDesignCards(filter="all"){
+  const list = filter==="all" ? DS : DS.filter(d => d.cat === filter || (filter==="doc" && d.cat==="doc"));
+  $("design-grid").innerHTML = list.map((d) => {
+    const origIndex = DS.indexOf(d);
+    return `
+    <div class="design-card ${origIndex===activeDesign?'active':''}" data-idx="${origIndex}" title="Apply ${d.n}">
+      <div class="design-preview" style="background:${d.bgGradient}">
+        <div class="design-mockup ${d.mockupClass}">
+          <div class="m-bar"></div>
+          <div class="m-line"></div>
+          <div class="m-line short"></div>
+        </div>
+      </div>
+      <div class="design-info">
+        <div class="design-tag">${d.cat.toUpperCase()} · ${d.size}</div>
+        <div class="design-name">${d.n}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderThemesList(){
+  $("themes-grid").innerHTML = TP.map((t,i) => `
+    <div class="theme-card ${cur===i?'active':''}" data-ti="${i}" title="Apply ${t.n}">
+      <div class="theme-swatch" style="background:linear-gradient(135deg, ${t.c}, ${t.d});"></div>
+      <div class="theme-name">${t.n}</div>
+    </div>
+  `).join("");
+}
+
+/* Category Filters */
+document.querySelectorAll("#template-filters .filter-chip").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll("#template-filters .filter-chip").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    renderDesignCards(btn.dataset.cat);
+  };
+});
+
+/* Sidebar Tabs: Templates vs Themes */
+$("tab-designs-btn").onclick = () => {
+  $("tab-designs-btn").classList.add("active");
+  $("tab-themes-btn").classList.remove("active");
+  $("templates-section").style.display = "";
+  $("themes-section").style.display = "none";
+  $("template-filters").style.display = "";
+};
+$("tab-themes-btn").onclick = () => {
+  $("tab-themes-btn").classList.add("active");
+  $("tab-designs-btn").classList.remove("active");
+  $("templates-section").style.display = "none";
+  $("themes-section").style.display = "";
+  $("template-filters").style.display = "none";
+  renderThemesList();
+};
+
+/* Clicking a Design Template in Left Sidebar */
+$("design-grid").onclick = e => {
+  const card = e.target.closest(".design-card");
+  if (!card) return;
+  const idx = +card.dataset.idx;
+  setDesign(idx);
+};
+$("themes-grid").onclick = e => {
+  const card = e.target.closest(".theme-card");
+  if (!card) return;
+  applyTheme(+card.dataset.ti);
+  renderThemesList();
+  save();
+};
+
+function openDesign(i, data){
+  const d = DS[i];
+  data = data || {
+    title: i ? "Your " + d.n + " Title" : "Document Title",
+    sub: "A powerful subtitle and narrative tagline goes here",
+    rest: ["<h2>Overview</h2><p>Introduce the key highlights and context for your readers.</p>", "<ul><li>Core initiative and value point 1</li><li>Strategic capability 2</li><li>Operational outcome 3</li></ul>"]
+  };
+  const m = d.m || [4, 17, 4, 17];
+  Object.assign(PG, {
+    size: d.size || "A4",
+    custom: d.custom || PG.custom,
+    mt: m[0], mr: m[1], mb: m[2], ml: m[3],
+    hh: d.hf === false ? 0 : 56,
+    fh: d.hf === false ? 0 : 56
+  });
+  HF.h = HF.f = d.hf !== false;
+  DOC.toc = !!d.toc;
+  CV.on = !!d.cover;
+  page.classList.toggle("land", !!d.land);
+  $("orient").textContent = d.land ? "▭ Landscape" : "▯ Portrait";
+  setDoc(d.pages(data), { t: data.title, s: data.sub, m: d.cover ? (TP[cur].cm || "") : "" }, cur);
+  syncHF();
+  syncPG();
+  $("tocon").checked = DOC.toc;
+  page.classList.toggle("notoc", !DOC.toc);
+  tocSig = "";
+  toc();
+  save();
+  page.scrollIntoView({ behavior: "smooth" });
+}
+
+function setDesign(i){
+  activeDesign = i;
+  $("dtxt").textContent = "Design: " + DS[i].n;
+  $("dchip").classList.add("show");
+  openDesign(i);
+  renderDesignCards();
+  $("prompt").placeholder = "Describe your " + DS[i].n.toLowerCase() + " — AI fills this layout";
+  $("prompt").focus();
+}
+
+$("dx").onclick = () => {
+  activeDesign = -1;
+  $("dchip").classList.remove("show");
+  renderDesignCards();
+  $("prompt").placeholder = "Enter topic or prompt... AI writes & formats into your screen";
+};
+
+/* AI Design Chooser Modal */
+function renderAIChooserGrid(){
+  $("ai-chooser-grid").innerHTML = DS.map((d, i) => `
+    <div class="ai-chooser-card ${i===activeDesign?'active':''}" data-idx="${i}">
+      <div class="ai-chooser-preview" style="background:${d.bgGradient}">
+        ${d.n.charAt(0)}
+      </div>
+      <div style="font-weight:600;font-size:12px;color:var(--text);margin-top:2px;">${d.n}</div>
+      <div style="font-size:10px;color:var(--muted)">${d.cat.toUpperCase()} · ${d.size}</div>
+    </div>
+  `).join("");
+}
+
+let chooserSelectedIdx = -1;
+$("btn-open-ai-chooser").onclick = () => {
+  chooserSelectedIdx = activeDesign >= 0 ? activeDesign : 0;
+  renderAIChooserGrid();
+  highlightChooserCard(chooserSelectedIdx);
+  $("aichooserdlg").showModal();
+};
+$("chooser-close").onclick = () => $("aichooserdlg").close();
+
+function highlightChooserCard(idx){
+  chooserSelectedIdx = idx;
+  document.querySelectorAll(".ai-chooser-card").forEach(c => {
+    c.classList.toggle("active", +c.dataset.idx === idx);
+  });
+  $("chooser-selected-info").textContent = "Selected: " + DS[idx].n + " (" + DS[idx].desc + ")";
+  $("chooser-confirm-btn").disabled = false;
+}
+
+$("ai-chooser-grid").onclick = e => {
+  const card = e.target.closest(".ai-chooser-card");
+  if (!card) return;
+  highlightChooserCard(+card.dataset.idx);
+};
+
+$("chooser-confirm-btn").onclick = async () => {
+  $("aichooserdlg").close();
+  setDesign(chooserSelectedIdx);
+  const q = $("prompt").value.trim();
+  if (q) {
+    $("go").click();
+  } else {
+    $("prompt").focus();
+  }
+};
+
+/* ============================================================
+   PAGE & CANVAS RENDERING LOGIC
+   ============================================================ */
+const CVD = { t: "Title", s: "Subtitle", m: "Footer note" };
+function coverHTML(t, x){
+  const f = (tag, k) => `<${tag} data-f="${k}" data-ph="${CVD[k]}" contenteditable="true">${x[k] || ""}</${tag}>`;
+  return `<div class="cv cv-${t.cv}">${t.cv == "res" ? `<img class="lg" src="${RIMG.w}">` : ""}${f("h1", "t")}${f("p", "s")}${f("p", "m")}</div>`;
+}
+
+function applyCV(){
+  const c = page.querySelector(".cv");
+  page.classList.toggle("nocover", !CV.on);
+  page.classList.toggle("notoc", !DOC.toc);
+  $("cvon-check").checked = CV.on;
+  $("cvlg-check").checked = CV.lg;
+  if (!c) return;
+  c.style.background = CV.img ? `center/cover url(${CV.img})` : (CV.bg || "");
+  c.style.textAlign = CV.al || "";
+  c.classList.toggle("nolg", !CV.lg);
+  if (CV.tx) {
+    c.dataset.tx = 1;
+    c.style.setProperty("--cvtx", CV.tx);
+  } else {
+    delete c.dataset.tx;
+  }
+}
+
+function applyTheme(i, x, objs){
+  cur = i;
+  const t = TP[i], s = page.style;
+  s.setProperty("--c", t.c);
+  s.setProperty("--d", t.d);
+  s.setProperty("--f", t.f ? `'${t.f}',serif` : "'Bricolage Grotesque',sans-serif");
+  s.setProperty("--bf", t.bf ? `'${t.bf}',sans-serif` : "Figtree,sans-serif");
+  s.setProperty("--strip", t.strip || "none");
+  s.setProperty("--net", `url(${RIMG.n})`);
+  if (!HF.custom) {
+    HF.logo = t.logo || "";
+    HF.hl = t.hl === undefined ? "Your company" : t.hl;
+    HF.fl = t.fl || "Confidential";
+    syncHF();
+  }
+  const cb = page.querySelector(".cover .body"), keep = objs !== undefined ? objs : [...cb.querySelectorAll(".obj")].map(o => o.outerHTML).join("");
+  if (!x) {
+    x = {};
+    cb.querySelectorAll("[data-f]").forEach(e => x[e.dataset.f] = e.innerHTML);
+  }
+  cb.innerHTML = coverHTML(t, x) + keep;
+  renderHF();
+  applyCV();
+  store("ap_tpl", i);
+}
+
+const pgBase = () => PS[PG.size] || PG.custom || PS.A4;
+const pgSize = () => {
+  const s = pgBase();
+  return page.classList.contains("land") ? [s[1], s[0]] : s;
+};
+
+function syncPG(){
+  $("psz").value = PG.size;
+  ["mt", "mr", "mb", "ml"].forEach(k => $(k).value = PG[k]);
+  $("hh").value = PG.hh;
+  $("fh").value = PG.fh;
+  $("mgon").classList.toggle("on", !!PG.guides);
+}
+
+function applyPG(){
+  const s = pgBase(), st = page.style;
+  st.setProperty("--pw", s[0] + "px");
+  st.setProperty("--ph", s[1] + "px");
+  ["mt", "mr", "mb", "ml"].forEach(k => st.setProperty("--" + k, Math.round(PG[k] * MM) + "px"));
+  st.setProperty("--hh", PG.hh + "px");
+  st.setProperty("--fh", PG.fh + "px");
+  page.classList.toggle("mg", !!PG.guides);
+  syncPG();
+}
+
+function renderHF(){
+  const lg = HF.logo ? `<img class="logo" src="${HF.logo}">` : "";
+  page.querySelectorAll(".sheet").forEach(s => {
+    s.querySelector(".hd").innerHTML = HF.h ? lg + (HF.hl ? `<span>${esc(HF.hl)}</span>` : "") : "";
+    s.querySelector(".ft").innerHTML = HF.f ? `<span>${esc(HF.fl)}</span>` + (HF.pn ? '<b class="pn"></b>' : "") : "";
+  });
+}
+
+function syncHF(){
+  $("hfl").value = HF.hl;
+  $("ffl").value = HF.fl;
+  $("hfh").checked = HF.h;
+  $("hff").checked = HF.f;
+  $("hfp").checked = HF.pn;
+}
+
+function setDoc(pages, x, i, objs){
+  tocSig = "";
+  page.innerHTML = sheetHTML("", "cover") + sheetHTML('<div class="toc"></div>', "tocpg") + (pages.length ? pages : ["<p><br></p>"]).map(p => typeof p == "string" ? sheetHTML(p) : sheetHTML(p.h, "pg", p.a)).join("");
+  applyPG();
+  applyTheme(i || 0, x, objs);
+  toc();
+  info();
+}
+
+function setContent(pages){
+  tocSig = "";
+  page.querySelectorAll(".sheet.pg").forEach(s => s.remove());
+  const t = lastToc();
+  (pages.length ? pages : ["<p><br></p>"]).slice().reverse().forEach(h => t.insertAdjacentHTML("afterend", sheetHTML(h)));
+  renderHF();
+  toc();
+  info();
+}
+
+/* ============================================================
+   ADVANCED IMPORT OPTIONS (INSERT AFTER TOC PAGE)
+   ============================================================ */
+$("btn-open-import").onclick = () => $("impdlg").showModal();
+$("imp-close").onclick = () => $("impdlg").close();
+$("imp-cancel").onclick = () => $("impdlg").close();
+$("btn-import-toc-quick").onclick = () => {
+  document.querySelector('input[name="import-dest"][value="after_toc"]').checked = true;
+  $("impdlg").showModal();
+};
+
+function getImportDestination(){
+  const radio = document.querySelector('input[name="import-dest"]:checked');
+  return radio ? radio.value : "after_toc";
+}
+
+async function handleImportedPages(pages){
+  const dest = getImportDestination();
+  if (dest === "replace") {
+    setContent(pages);
+  } else if (dest === "after_toc") {
+    // Insert text directly after TOC page
+    const tocSheet = lastToc();
+    pages.slice().reverse().forEach(h => {
+      tocSheet.insertAdjacentHTML("afterend", sheetHTML(h));
+    });
+    renderHF();
+    toc();
+    info();
+    save();
+    // Scroll to the newly inserted first page
+    if (tocSheet.nextElementSibling) {
+      tocSheet.nextElementSibling.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  } else if (dest === "end") {
+    // Append to the end
+    const lastSheet = [...page.querySelectorAll(".sheet.pg")].pop() || lastToc();
+    pages.forEach(h => {
+      lastSheet.insertAdjacentHTML("afterend", sheetHTML(h));
+    });
+    renderHF();
+    toc();
+    info();
+    save();
+  } else if (dest === "cursor") {
+    const combined = pages.join("<p><br></p>");
+    const c = host();
+    if (c && c.closest(".pg")) {
+      restore();
+      document.execCommand("insertHTML", false, combined);
+    } else {
+      contentBody().insertAdjacentHTML("beforeend", combined);
+    }
+    save();
+  }
+}
+
+/* ============================================================
+   ADDITIONAL PAGE & INSERT TEXT AT END OF SCREEN
+   ============================================================ */
+function addNewPageAtEnd(){
+  const lastSheet = [...page.querySelectorAll(".sheet.pg")].pop() || lastToc();
+  lastSheet.insertAdjacentHTML("afterend", sheetHTML());
+  renderHF();
+  toc();
+  save();
+  const newSheet = lastSheet.nextElementSibling;
+  if (newSheet) {
+    newSheet.scrollIntoView({ behavior: "smooth", block: "center" });
+    const b = newSheet.querySelector(".body");
+    b.focus();
+    const r = document.createRange();
+    r.selectNodeContents(b);
+    r.collapse(false);
+    const sl = getSelection();
+    sl.removeAllRanges();
+    sl.addRange(r);
+  }
+}
+
+function addTextSectionAtEnd(){
+  const lastSheet = [...page.querySelectorAll(".sheet.pg")].pop();
+  if (!lastSheet) {
+    addNewPageAtEnd();
+    return;
+  }
+  const body = lastSheet.querySelector(".body");
+  const newPara = document.createElement("p");
+  newPara.innerHTML = "Start typing your new section here...";
+  body.appendChild(newPara);
+  lastSheet.scrollIntoView({ behavior: "smooth", block: "end" });
+  newPara.focus();
+  const r = document.createRange();
+  r.selectNodeContents(newPara);
+  const sl = getSelection();
+  sl.removeAllRanges();
+  sl.addRange(r);
+  save();
+}
+
+$("btn-add-page-end").onclick = addNewPageAtEnd;
+$("btn-add-text-end").onclick = addTextSectionAtEnd;
+
+/* ============================================================
+   RIGHT SIDEBAR: PROPERTY TABS & CONTEXT-AWARE POSITIONING
+   ============================================================ */
+const tabButtons = document.querySelectorAll(".prop-tab-btn");
+const tabPanes = {
+  style: $("pane-style"),
+  layout: $("pane-layout"),
+  object: $("pane-object"),
+  table: $("pane-table"),
+  cover: $("pane-cover")
+};
+
+function switchPropTab(tabId){
+  tabButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.tab === tabId);
+  });
+  Object.keys(tabPanes).forEach(k => {
+    tabPanes[k].style.display = (k === tabId) ? "block" : "none";
+  });
+}
+
+tabButtons.forEach(btn => {
+  btn.onclick = () => switchPropTab(btn.dataset.tab);
+});
+
+/* Context-aware tab switching on click */
+page.addEventListener("click", e => {
+  const T = e.target;
+  if (T.closest("td, th")) {
+    switchPropTab("table");
+    return;
+  }
+  if (T.matches(".body img") || T.closest(".obj")) {
+    switchPropTab("object");
+    return;
+  }
+  if (T.closest(".cover")) {
+    switchPropTab("cover");
+    return;
+  }
+  if (T.closest(".pg .body") || T.closest("[data-f]")) {
+    switchPropTab("style");
+    return;
+  }
+});
+
+/* ============================================================
+   AI TEXT & AUTO-GENERATION ENGINE
+   ============================================================ */
+function md(t){
+  return t.split(/\n{2,}/).map(b => {
+    b = b.trim();
+    if (!b) return "";
+    const inl = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\*(.+?)\*/g, "<i>$1</i>");
+    const m = b.match(/^(#{1,3})\s+([^\n]*)\n?([\s\S]*)$/);
+    if (m) return `<h${m[1].length}>${inl(m[2])}</h${m[1].length}>` + (m[3] ? md(m[3]) : "");
+    if (/^[-*]\s/.test(b)) return "<ul>" + b.split("\n").map(l => `<li>${inl(l.replace(/^[-*]\s/, ""))}</li>`).join("") + "</ul>";
+    return "<p>" + b.split("\n").map(l => inl(l)).join("<br>") + "</p>";
+  }).join("");
+}
+
+function parseGen(t){
+  const d = document.createElement("div");
+  d.innerHTML = md(t);
+  const k = [...d.children];
+  let title = "Creative Title", sub = "", i = 0;
+  if (k[0]) { title = k[0].textContent.slice(0, 80); i = 1; }
+  if (k[i] && k[i].tagName == "P") { sub = k[i].textContent; i++; }
+  return { title, sub, rest: k.slice(i).map(x => x.outerHTML) };
+}
+
+function offline(q){
+  const t = q.replace(/^(please\s+)?(write|create|generate|draft|make)\s+(me\s+)?(a|an|the)?\s*/i, "").replace(/[.?!]+$/, "").trim() || "your topic";
+  const T = t.charAt(0).toUpperCase() + t.slice(1);
+  return `# ${T}\n\nA short introduction and compelling summary about ${t}.\n\n## Overview\n\nSummarise what ${t} delivers, who it is built for, and why it matters.\n\n## Key Features & Highlights\n\n- Premium quality and performance\n- Streamlined workflow efficiency\n- Proven reliability and modern innovation\n\n## Actionable Takeaway\n\nDiscover how ${t} accelerates your results.`;
+}
+
+const KEY = () => (load("ws_key") || "").trim();
+const MODEL = () => load("ws_model") || "claude-sonnet-5-5";
+const cleanKey = k => k.trim().replace(/^["'`]+|["'`]+$/g, "").replace(/\s+/g, "");
+const MODELS = () => [MODEL(), "claude-sonnet-5-5", "claude-sonnet-4-6", "claude-haiku-5-5"].filter((v, i, a) => v && a.indexOf(v) == i);
+
+async function callClaude(prompt, o = {}){
+  const key = KEY();
+  if (!key) throw new Error("NOKEY");
+  if (!/^sk-ant-/.test(key)) throw new Error("BADKEY");
+  let last;
+  for (const model of MODELS()) {
+    const body = { model, max_tokens: o.max || 1500, messages: [{ role: "user", content: prompt }] };
+    if (o.search) body.tools = [{ type: "web_search_20250305", name: "web_search" }];
+    let r, d;
+    try {
+      r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true"
+        },
+        body: JSON.stringify(body)
+      });
+    } catch (e) {
+      throw new Error("NET");
+    }
+    d = await r.json().catch(() => ({}));
+    if (r.ok) {
+      if (model !== MODEL()) store("ws_model", model);
+      return (d.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    }
+    const m = (d.error && d.error.message) || r.statusText;
+    last = new Error(r.status + ": " + m);
+    if ([401, 402, 403, 429].includes(r.status)) throw last;
+    if (r.status == 404 || /model/i.test(m)) continue;
+    throw last;
+  }
+  throw last;
+}
+
+function friendly(e){
+  const m = e.message || String(e);
+  if (m == "NOKEY") return "No API key found. Click ⚙ in the AI bar and paste your Anthropic API key (sk-ant-...). Offline preview generated below.";
+  if (m == "BADKEY") return "Invalid key format. Must start with sk-ant-. Offline draft generated below.";
+  if (m == "NET") return "Network connection issue reaching api.anthropic.com. Offline draft shown.";
+  if (/^401/.test(m)) return "Key rejected by Anthropic. Check console.anthropic.com. Offline draft shown.";
+  return m;
+}
+
+/* AI Generate Button Click */
+$("go").onclick = async () => {
+  const q = $("prompt").value.trim();
+  if (!q) {
+    $("prompt").focus();
+    return;
+  }
+  const drawer = $("result-drawer"), res = $("result");
+  drawer.classList.add("show");
+  res.textContent = "AI generating and formatting layout...";
+  $("go").disabled = true;
+
+  const dsn = activeDesign >= 0 ? DS[activeDesign] : null;
+  try {
+    if (mode === "search") {
+      if (!KEY()) {
+        window.open("https://www.google.com/search?q=" + encodeURIComponent(q), "_blank");
+        res.textContent = "Opened Google search in new tab. Add Anthropic key via ⚙ for web-grounded results inside the canvas.";
+      } else {
+        lastText = await callClaude(q, { search: true });
+        res.textContent = lastText;
+      }
+    } else {
+      let err = "";
+      const ctx = dsn ? ` The text is intended for a ${dsn.n.toLowerCase()} (${dsn.cat}): write a short punchy title heading (#), a clean tagline sentence, and 2-3 focused sections (##) with bullets.` : "";
+      try {
+        lastText = KEY() ? await callClaude("Write clean publication-ready text. Use # for main title, - for bullets, blank lines between paragraphs. No meta preamble." + ctx + "\n\n" + q) : offline(q);
+        if (!KEY()) err = "Showing offline generated draft. Add an Anthropic API key (⚙) for live LLM responses.";
+      } catch (e) {
+        err = friendly(e);
+        lastText = offline(q);
+      }
+
+      if (dsn) {
+        openDesign(activeDesign, parseGen(lastText));
+        res.textContent = (err ? err + "\n\n" : "") + "✓ Generated and applied to " + dsn.n + " screen!";
+      } else {
+        res.textContent = (err ? err + "\n\n" : "") + lastText;
+      }
+    }
+  } catch (e) {
+    res.textContent = friendly(e);
+  }
+  $("go").disabled = false;
+};
+
+$("btn-close-result").onclick = () => $("result-drawer").classList.remove("show");
+$("insert").onclick = () => {
+  const h = md(lastText), c = host();
+  if (c && c.closest(".pg")) {
+    restore();
+    document.execCommand("insertHTML", false, h);
+  } else {
+    contentBody().insertAdjacentHTML("beforeend", h);
+  }
+  save();
+  $("result-drawer").classList.remove("show");
+};
+
+/* Quick Actions Dropdown */
+$("quick-actions-select").onchange = async e => {
+  const v = e.target.value;
+  e.target.value = "";
+  if (v === "") return;
+  const QA_PROMPTS = [
+    "Proofread this text: fix spelling, grammar and punctuation only. Return only the corrected text.",
+    "Rewrite this text so it is clearer, punchier and more professional. Return only the rewritten text.",
+    "Make this text about half as long, keeping the core key points. Return only the shortened text.",
+    "Polish the tone of this text to be engaging, authoritative and friendly. Return only the result.",
+    "Write one new paragraph (3-4 sentences) expanding on this topic. Return only the paragraph.",
+    "Create a clean comparison markdown table for this topic with 3-4 columns and 3-5 rows.",
+    "Summarize the main takeaways in 4-5 bullet points. Return only the bullets."
+  ];
+  const sel = (rng && rng.toString().trim()) || "";
+  const topic = $("prompt").value.trim() || sel || "this topic";
+  const drawer = $("result-drawer"), res = $("result");
+  drawer.classList.add("show");
+  res.textContent = "Running quick action...";
+
+  try {
+    const promptText = QA_PROMPTS[+v] + "\n\n" + (sel || topic);
+    const out = KEY() ? await callClaude(promptText) : ("Offline preview for: " + topic);
+    restore();
+    if (+v === 5) {
+      // Table
+      const tHtml = mdTable(out) || `<p>${esc(out)}</p>`;
+      document.execCommand("insertHTML", false, tHtml);
+    } else {
+      document.execCommand("insertText", false, out.trim());
+    }
+    save();
+    res.textContent = "✓ Quick action applied at selection!";
+  } catch (err) {
+    res.textContent = friendly(err);
+  }
+};
+
+function mdTable(t){
+  const rows = t.split("\n").map(l => l.trim()).filter(l => l.startsWith("|") && !/^\|[\s:|-]+\|?$/.test(l)).map(l => l.replace(/^\||\|$/g, "").split("|").map(c => c.trim()));
+  return rows.length ? "<table>" + rows.map((r, i) => "<tr>" + r.map(c => `<${i ? "td" : "th"}>${esc(c)}</${i ? "td" : "th"}>`).join("") + "</tr>").join("") + "</table><p><br></p>" : "";
+}
+
+/* AI Mode Toggles */
+$("pill-mode-gen").onclick = () => {
+  mode = "gen";
+  $("pill-mode-gen").classList.add("on");
+  $("pill-mode-search").classList.remove("on");
+  $("go").textContent = "Generate";
+};
+$("pill-mode-search").onclick = () => {
+  mode = "search";
+  $("pill-mode-search").classList.add("on");
+  $("pill-mode-gen").classList.remove("on");
+  $("go").textContent = "Search";
+};
+
+/* API Key Dialog */
+$("gkey").onclick = () => {
+  $("kin").value = KEY();
+  $("kmo").value = MODEL();
+  $("kmsg").textContent = "";
+  $("keydlg").showModal();
+};
+$("key-x").onclick = () => $("keydlg").close();
+$("kx").onclick = () => $("keydlg").close();
+const keySave = () => {
+  store("ws_key", cleanKey($("kin").value));
+  store("ws_model", $("kmo").value.trim() || "claude-sonnet-5-5");
+};
+$("ksave").onclick = () => {
+  keySave();
+  $("keydlg").close();
+  alert("API Key saved securely in browser localStorage.");
+};
+$("kdel").onclick = () => {
+  $("kin").value = "";
+  store("ws_key", "");
+  $("kmsg").textContent = "Key removed.";
+};
+$("ktest").onclick = async () => {
+  keySave();
+  $("kmsg").textContent = "Testing key with Anthropic...";
+  try {
+    await callClaude("Reply with the single word OK.", { max: 10 });
+    $("kmsg").textContent = "✓ Key works properly!";
+  } catch (e) {
+    $("kmsg").textContent = "✕ " + friendly(e);
+  }
+};
+
+/* ============================================================
+   SELECTION, TYPOGRAPHY & PROPERTY SYNCING
+   ============================================================ */
+function info(){
+  wordsN = (page.innerText.match(/\S+/g) || []).length;
+  const n = [...page.querySelectorAll(".sheet")].filter(visSheet).length;
+  $("info").textContent = `${wordsN} words · ${n} pages`;
+}
+
+function restore(){
+  const h = host() || contentBody();
+  h.focus();
+  if (rng && h.contains(rng.startContainer)) {
+    const s = getSelection();
+    s.removeAllRanges();
+    s.addRange(rng);
+  }
+}
+
+const ex = (c, v) => {
+  restore();
+  document.execCommand(c, false, v);
+  save();
+};
+
+const curBlock = () => {
+  const s = getSelection();
+  return s.anchorNode && E(s.anchorNode).closest("p,h1,h2,h3,h4,li,blockquote,div");
+};
+
+function blocks(){
+  const h = host();
+  if (!h || !rng) return [];
+  if (rng.collapsed) {
+    const b = E(rng.startContainer).closest("p,h1,h2,h3,h4,li,blockquote,td,th,div");
+    return [b && h.contains(b) && b !== h ? b : h];
+  }
+  const t = [...h.querySelectorAll("p,h1,h2,h3,h4,li,blockquote")].filter(c => rng.intersectsNode(c));
+  return t.length ? t : [h];
+}
+
+function readProps(){
+  const s = getSelection(), el = s.anchorNode && E(s.anchorNode), b = blocks()[0];
+  if (!b || !el) return;
+  const c = getComputedStyle(b), ce = getComputedStyle(el);
+  const fs = parseFloat(c.fontSize);
+  const lh = c.lineHeight == "normal" ? 1.2 : parseFloat(c.lineHeight) / fs;
+  $("sb").value = Math.round(parseFloat(c.marginTop) * 0.75);
+  $("sa").value = Math.round(parseFloat(c.marginBottom) * 0.75);
+  $("lh").value = [1, 1.2, 1.5, 1.8].reduce((a, v) => Math.abs(v - lh) < Math.abs(a - lh) ? v : a);
+  $("fsz").value = Math.round(parseFloat(ce.fontSize) * 0.75);
+
+  const li = b.closest("li"), ti = parseFloat(c.textIndent);
+  $("hg").value = li ? Math.round(parseFloat(getComputedStyle(li.parentElement).paddingLeft) * 0.75) : (ti < 0 ? Math.round(-ti * 0.75) : 0);
+
+  const m = b.className && b.className.match(/\bs-(\S+)/);
+  let v = "t:p", nm = ({ H1: "Heading 1", H2: "Heading 2", H3: "Heading 3", LI: "List item", TD: "Table cell", TH: "Table header" })[b.nodeName] || "Paragraph";
+  if (m) {
+    const k = Object.keys(ST).find(k => slug(k) == m[1]);
+    if (k) { v = "s:" + k; nm = k; }
+  } else {
+    v = ({ H1: "t:h1", H2: "t:h2", H3: "t:h3" })[b.nodeName] || "t:p";
+  }
+  $("sty").value = v;
+
+  $("fmtstat").textContent = `${nm} · ${ce.fontFamily.split(",")[0].replace(/["']/g, "")} · ${Math.round(parseFloat(ce.fontSize) * 0.75)}pt · ${(+ce.fontWeight >= 600 ? "Bold " : "") + (ce.fontStyle == "italic" ? "Italic " : "")}`;
+}
+
+document.addEventListener("selectionchange", () => {
+  const s = getSelection();
+  if (!s.rangeCount || !s.anchorNode || !page.contains(s.anchorNode)) return;
+  if (!E(s.anchorNode).closest('[contenteditable="true"]')) return;
+  rng = s.getRangeAt(0).cloneRange();
+  objFocus = false;
+  posUpdate();
+  document.querySelectorAll("[data-c]").forEach(x => {
+    let on = false;
+    try { on = document.queryCommandState(x.dataset.c); } catch (e) {}
+    x.classList.toggle("on", on);
+  });
+  readProps();
+});
+
+document.addEventListener("click", e => {
+  const T = e.target;
+  let b;
+  if (b = T.closest("[data-c]")) ex(b.dataset.c);
+  else if (b = T.closest("[data-a]")) imgMode(b.dataset.a);
+  else if (b = T.closest("[data-oa]")) alignObj(b.dataset.oa);
+  else if (b = T.closest("[data-al]")) { CV.al = b.dataset.al; applyCV(); save(); }
+});
+
+$("font").onchange = e => ex("fontName", e.target.value);
+$("color").oninput = e => ex("foreColor", e.target.value);
+$("hl").oninput = e => ex("hiliteColor", e.target.value);
+[["lh", "lineHeight", v => v], ["sb", "marginTop", v => v + "pt"], ["sa", "marginBottom", v => v + "pt"]].forEach(([id, p, f]) => {
+  $(id).onchange = e => {
+    blocks().forEach(b => b.style[p] = f(e.target.value));
+    save();
+  };
+});
+
+/* Table insert button in Style tab */
+$("tbl-quick").onclick = () => {
+  const r = +prompt("Table rows", 3), c = +prompt("Table columns", 3);
+  if (r > 0 && c > 0) {
+    restore();
+    document.execCommand("insertHTML", false, "<table>" + Array.from({ length: r }, (_, i) => "<tr>" + Array.from({ length: c }, () => i ? "<td>Text</td>" : "<th>Header</th>").join("") + "</tr>").join("") + "</table><p><br></p>");
+    save();
+  }
+};
+
+/* Styles Management */
+const hex = c => {
+  const m = c.match(/\d+/g);
+  return m ? "#" + m.slice(0, 3).map(x => (+x).toString(16).padStart(2, "0")).join("") : "#000000";
+};
+const hv = v => v !== undefined && v !== "" && !isNaN(v);
+
+function styleCSS(o){
+  if (typeof o == "string") return o;
+  let c = "";
+  if (o.ff) c += `font-family:'${o.ff}',sans-serif;`;
+  if (o.fs) c += `font-size:${o.fs}pt;`;
+  if (o.b) c += "font-weight:700;";
+  if (o.i) c += "font-style:italic;";
+  if (o.u) c += "text-decoration:underline;";
+  if (o.c) c += `color:${o.c};`;
+  if (o.al) c += `text-align:${o.al};`;
+  if (o.lh) c += `line-height:${o.lh};`;
+  if (hv(o.sb)) c += `margin-top:${o.sb}pt;`;
+  if (hv(o.sa)) c += `margin-bottom:${o.sa}pt;`;
+  return c;
+}
+
+function buildSty(){
+  $("sty").innerHTML = '<option value="t:p">Paragraph</option><option value="t:h1">Heading 1</option><option value="t:h2">Heading 2</option><option value="t:h3">Heading 3</option>' + Object.keys(ST).map(k => `<option value="s:${k}">${k}</option>`).join("");
+  $("stl").textContent = Object.entries(ST).map(([k, v]) => `#page .body .s-${slug(k)}{${styleCSS(v)}}`).join("");
+  store("ap_styles", JSON.stringify(ST));
+}
+
+const noS = c => c.replace(/\bs-\S+/g, "").trim();
+function applyStyle(v){
+  const t = v[0], n = v.slice(2);
+  restore();
+  const s = getSelection();
+  if (s.rangeCount) rng = s.getRangeAt(0).cloneRange();
+  if (t == "t") {
+    document.execCommand("formatBlock", false, n);
+    rng = getSelection().getRangeAt(0).cloneRange();
+    blocks().forEach(b => { if (b.className) b.className = noS(b.className); });
+  } else {
+    let bl = blocks();
+    const h = host();
+    if (bl[0] === h) {
+      document.execCommand("formatBlock", false, "p");
+      rng = getSelection().getRangeAt(0).cloneRange();
+      bl = blocks();
+    }
+    bl.forEach(b => {
+      if (b === h) return;
+      b.className = (noS(b.className) + " s-" + slug(n)).trim();
+      b.removeAttribute("style");
+    });
+  }
+  save();
+  readProps();
+}
+
+function captureStyle(){
+  restore();
+  const s = getSelection(), el = s.anchorNode && E(s.anchorNode), b = blocks()[0];
+  if (!el || !b) return null;
+  const c = getComputedStyle(el), d = getComputedStyle(b);
+  const fs = parseFloat(d.fontSize);
+  const lh = d.lineHeight == "normal" ? 1.2 : parseFloat(d.lineHeight) / fs;
+  return {
+    ff: c.fontFamily.split(",")[0].replace(/["']/g, ""),
+    fs: Math.round(parseFloat(c.fontSize) * 0.75),
+    b: +c.fontWeight >= 600,
+    i: c.fontStyle == "italic",
+    u: c.textDecorationLine.includes("underline"),
+    c: hex(c.color),
+    al: ["start", "left"].includes(d.textAlign) ? "left" : d.textAlign,
+    lh: String([1, 1.2, 1.5, 1.8].reduce((a, v) => Math.abs(v - lh) < Math.abs(a - lh) ? v : a)),
+    sb: Math.round(parseFloat(d.marginTop) * 0.75),
+    sa: Math.round(parseFloat(d.marginBottom) * 0.75),
+    fi: 0, li: 0
+  };
+}
+
+const selSty = () => {
+  const v = $("sty").value;
+  return v[0] == "s" ? v.slice(2) : null;
+};
+let sdMode = "new";
+function openSD(mode, name, o){
+  sdMode = mode;
+  $("sdt").textContent = mode == "new" ? "New Style" : "Edit Style: " + name;
+  $("sn").value = name || "";
+  $("sn").disabled = mode == "edit";
+  o = o && typeof o == "object" ? o : {};
+  const f = $("sff");
+  if (o.ff && ![...f.options].some(x => x.value == o.ff)) f.add(new Option(o.ff, o.ff));
+  f.value = o.ff || "Figtree";
+  $("sfs").value = o.fs || 12;
+  $("sc").value = o.c || "#1b1824";
+  $("swt").value = o.b ? "1" : "";
+  $("siu").value = (o.i ? "i" : "") + (o.u ? "u" : "");
+  $("sal").value = o.al || "left";
+  $("slh").value = o.lh || "1.5";
+  $("ssb").value = o.sb ?? 0;
+  $("ssa").value = o.sa ?? 0;
+  $("stdlg").showModal();
+}
+
+$("stn").onclick = () => { restore(); openSD("new", "", captureStyle()); };
+$("ste").onclick = () => {
+  const n = selSty();
+  if (!n) return alert("Select a custom style from the list first");
+  openSD("edit", n, ST[n]);
+};
+$("stu").onclick = () => {
+  const n = selSty();
+  if (!n) return alert("Select a custom style from the list first");
+  const o = captureStyle();
+  if (!o) return alert("Click inside text first");
+  ST[n] = o;
+  buildSty();
+  save();
+};
+$("std").onclick = () => {
+  const n = selSty();
+  if (!n) return alert("Select a custom style from the list first");
+  if (!confirm("Delete style “" + n + "”? Text will remain but loose styling class.")) return;
+  delete ST[n];
+  page.querySelectorAll(".s-" + slug(n)).forEach(e => e.classList.remove("s-" + slug(n)));
+  buildSty();
+  save();
+};
+$("sds").onclick = () => {
+  const n = $("sn").value.replace(/[^\w \-]/g, "").trim();
+  if (!n) return $("sn").focus();
+  ST[n] = {
+    ff: $("sff").value,
+    fs: +$("sfs").value || 12,
+    c: $("sc").value,
+    b: $("swt").value == "1",
+    i: $("siu").value.includes("i"),
+    u: $("siu").value.includes("u"),
+    al: $("sal").value,
+    lh: $("slh").value,
+    sb: +$("ssb").value || 0,
+    sa: +$("ssa").value || 0
+  };
+  buildSty();
+  $("stdlg").close();
+  $("sty").value = "s:" + n;
+  if (sdMode == "new") applyStyle("s:" + n); else save();
+};
+$("sdc").onclick = () => $("stdlg").close();
+$("sdc-x").onclick = () => $("stdlg").close();
+$("sty").onchange = e => applyStyle(e.target.value);
+
+function setSize(pt){
+  pt = Math.max(6, Math.min(200, pt));
+  restore();
+  const h = host();
+  if (!h) return;
+  if (getSelection().isCollapsed) {
+    blocks().forEach(b => b.style.fontSize = pt + "pt");
+  } else {
+    document.execCommand("fontSize", false, "7");
+    h.querySelectorAll('[style*="xxx-large"],font[size="7"]').forEach(el => {
+      el.removeAttribute("size");
+      el.style.fontSize = pt + "pt";
+    });
+  }
+  $("fsz").value = Math.round(pt);
+  save();
+}
+const curPt = () => {
+  const s = getSelection(), el = s.anchorNode && E(s.anchorNode);
+  return el ? parseFloat(getComputedStyle(el).fontSize) * 0.75 : 12;
+};
+$("fsz").onchange = e => setSize(+e.target.value || 12);
+$("fsm").onclick = () => setSize(Math.round(curPt()) - 1);
+$("fsp").onclick = () => setSize(Math.round(curPt()) + 1);
+$("hg").onchange = e => {
+  const n = Math.max(0, +e.target.value || 0);
+  blocks().forEach(b => {
+    const li = b.closest("li");
+    if (li) li.parentElement.style.paddingLeft = n + "pt";
+    else { b.style.paddingLeft = n + "pt"; b.style.textIndent = -n + "pt"; }
+  });
+  save();
+};
+
+/* ============================================================
+   OBJECTS: IMAGES, SHAPES, TEXTBOXES & POSITIONING
+   ============================================================ */
+function targetBody(){
+  const h = host(), b = h && h.closest(".body");
+  return b && (b.closest(".pg") || b.closest(".cover")) ? b : contentBody();
+}
+function selectObj(o, f){
+  document.querySelectorAll(".obj.osel").forEach(x => x.classList.remove("osel"));
+  selObj = o || null;
+  if (o) {
+    o.classList.add("osel");
+    objFocus = !!f;
+    if (f) {
+      if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+      getSelection().removeAllRanges();
+    }
+  } else {
+    objFocus = false;
+  }
+  syncObj();
+}
+function syncObj(){
+  const o = selObj;
+  if (!o) return;
+  $("ox").value = Math.round(o.offsetLeft);
+  $("oy").value = Math.round(o.offsetTop);
+  $("ow").value = Math.round(o.offsetWidth);
+  $("oh").value = Math.round(o.offsetHeight);
+  if (o.classList.contains("shp")) {
+    const s = o.style;
+    $("ofill").value = s.getPropertyValue("--fill").trim() || "#7b5cff";
+    $("ostk").value = s.getPropertyValue("--stk").trim() || "#1b1824";
+    $("osw").value = parseFloat(s.getPropertyValue("--sw")) || 0;
+  }
+}
+function pick(i){
+  document.querySelectorAll(".body img.sel").forEach(x => x.classList.remove("sel"));
+  selImg = i;
+  if (i) {
+    i.classList.add("sel");
+    const o = i.closest(".obj");
+    $("isp").value = i.dataset.sp || 12;
+    $("iw").value = o ? Math.round(o.offsetWidth / o.parentElement.clientWidth * 100) : parseInt(i.style.width) || 100;
+    selectObj(o || null, !!o);
+  }
+}
+function addObj(cls, inner, css){
+  const b = targetBody(), n = b.querySelectorAll(".obj").length % 8;
+  b.insertAdjacentHTML("beforeend", `<div class="obj ${cls}" contenteditable="false" style="left:${80+n*24}px;top:${80+n*24}px;${css}"><span class="mv" contenteditable="false" title="Drag to move">⠿</span><span class="dx" contenteditable="false" title="Delete">✕</span>${inner}</div>`);
+  const o = b.lastElementChild;
+  pick(null);
+  selectObj(o, true);
+  switchPropTab("object");
+  save();
+  return o;
+}
+
+$("tbx").onclick = () => addObj("tb", '<div class="ot" contenteditable="true">Type text here</div>', "width:220px;min-height:40px;background:#ffffff;border:1px solid #ddd;padding:8px;border-radius:4px;");
+
+const SH={
+  rect:'<rect x="0" y="0" width="100" height="100"/>',
+  round:'<rect x="0" y="0" width="100" height="100" rx="14" ry="14"/>',
+  ellipse:'<ellipse cx="50" cy="50" rx="50" ry="50"/>',
+  tri:'<path d="M50 0L100 100H0Z"/>',
+  diamond:'<path d="M50 0L100 50L50 100L0 50Z"/>',
+  star:'<path d="M50 0L61 35H98L68 57L79 91L50 70L21 91L32 57L2 35H39Z"/>',
+  arrow:'<path d="M0 35H60V10L100 50L60 90V65H0Z"/>',
+  line:'<path d="M0 50H100" style="fill:none"/>'
+};
+$("shp").onchange = e => {
+  const k = e.target.value;
+  e.target.value = "";
+  if (!k) return;
+  const ln = k == "line";
+  addObj("shp", `<svg viewBox="0 0 100 100" preserveAspectRatio="none">${SH[k]}</svg>`, `width:${ln ? 220 : 150}px;height:${ln ? 14 : 110}px;--fill:#7b5cff;--stk:#1b1824;--sw:${ln ? 3 : 0}`);
+};
+
+function alignObj(k){
+  const o = selObj;
+  if (!o) return;
+  const p = o.parentElement, W = p.clientWidth - o.offsetWidth, H = p.clientHeight - o.offsetHeight;
+  if (k == "left") o.style.left = "0px";
+  if (k == "center") o.style.left = Math.round(W / 2) + "px";
+  if (k == "right") o.style.left = W + "px";
+  if (k == "top") o.style.top = "0px";
+  if (k == "middle") o.style.top = Math.round(H / 2) + "px";
+  if (k == "bottom") o.style.top = H + "px";
+  syncObj();
+  save();
+}
+
+function imgMode(a){
+  if (!selImg) return;
+  if (a == "free") {
+    freeImg();
+  } else {
+    layoutImg(a);
+  }
+}
+function layoutImg(m, sp){
+  const i = selImg;
+  if (!i) return;
+  const o = i.closest(".obj");
+  if (o) { o.replaceWith(i); i.style.width = "60%"; selObj = null; }
+  m = m || i.dataset.m || "center";
+  sp = sp == null ? (+i.dataset.sp || 0) : sp;
+  i.dataset.m = m;
+  i.dataset.sp = sp;
+  const s = i.style;
+  s.float = "none";
+  s.display = "block";
+  if (m == "center") s.margin = `${sp}px auto`;
+  if (m == "left") s.margin = `${sp}px auto ${sp}px 0`;
+  if (m == "right") s.margin = `${sp}px 0 ${sp}px auto`;
+  if (m == "wrapl") { s.float = "left"; s.margin = `${sp/2}px ${sp}px ${sp}px 0`; }
+  if (m == "wrapr") { s.float = "right"; s.margin = `${sp/2}px 0 ${sp}px ${sp}px`; }
+  pick(i);
+  save();
+}
+function freeImg(){
+  const i = selImg;
+  if (!i || i.closest(".obj")) return;
+  const l = i.offsetLeft, t = i.offsetTop, w = i.offsetWidth, o = document.createElement("div");
+  o.className = "obj";
+  o.contentEditable = "false";
+  o.style.cssText = `left:${l}px;top:${t}px;width:${w}px`;
+  i.replaceWith(o);
+  o.innerHTML = '<span class="mv" contenteditable="false">⠿</span><span class="dx" contenteditable="false">✕</span>';
+  o.append(i);
+  Object.assign(i.style, { width: "100%", float: "none", margin: "0" });
+  selectObj(o, true);
+  save();
+}
+
+$("isp").onchange = e => layoutImg(null, Math.max(0, +e.target.value || 0));
+$("iw").oninput = e => {
+  if (!selImg) return;
+  const o = selImg.closest(".obj");
+  if (o) {
+    o.style.width = e.target.value / 100 * o.parentElement.clientWidth + "px";
+    syncObj();
+  } else {
+    selImg.style.width = e.target.value + "%";
+  }
+  save();
+};
+
+[["ox", "left"], ["oy", "top"], ["ow", "width"], ["oh", "height"]].forEach(([id, p]) => {
+  $(id).onchange = e => {
+    if (selObj) { selObj.style[p] = (+e.target.value || 0) + "px"; save(); }
+  };
+});
+
+function strokeNow(){
+  if (!selObj) return;
+  const c = $("ostk").value, w = +$("osw").value || 0;
+  if (selObj.classList.contains("shp")) {
+    selObj.style.setProperty("--stk", c);
+    selObj.style.setProperty("--sw", w);
+  } else {
+    selObj.style.border = w ? `${w}px solid ${c}` : "";
+  }
+  save();
+}
+$("ofill").oninput = e => {
+  if (!selObj) return;
+  selObj.classList.contains("shp") ? selObj.style.setProperty("--fill", e.target.value) : selObj.style.background = e.target.value;
+  save();
+};
+$("ostk").oninput = strokeNow;
+$("osw").onchange = strokeNow;
+
+const zs = o => [...o.parentElement.querySelectorAll(".obj")].map(x => +x.style.zIndex || 0);
+$("ofr").onclick = () => { if (selObj) { selObj.style.zIndex = Math.max(0, ...zs(selObj)) + 1; save(); } };
+$("obk").onclick = () => { if (selObj) { selObj.style.zIndex = Math.min(0, ...zs(selObj)) - 1; save(); } };
+
+function delObj(){
+  if (selObj) { const o = selObj; selectObj(null); selImg = null; o.remove(); }
+  else if (selImg) { selImg.remove(); selImg = null; }
+  save();
+}
+$("odel").onclick = delObj;
+
+function moveToPage(dir){
+  const el = selObj || selImg;
+  if (!el) return;
+  const sh = el.closest(".sheet.pg");
+  if (!sh) return alert("Items can move between text pages only.");
+  let t = dir < 0 ? sh.previousElementSibling : sh.nextElementSibling;
+  if (!t || !t.classList.contains("pg")) {
+    if (dir < 0) return alert("This is the first text page.");
+    sh.insertAdjacentHTML("afterend", sheetHTML());
+    renderHF();
+    t = sh.nextElementSibling;
+  }
+  const tb = t.querySelector(".body");
+  dir < 0 ? tb.append(el) : tb.prepend(el);
+  t.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (selObj) syncObj();
+  toc();
+  save();
+}
+$("mvp").onclick = () => moveToPage(-1);
+$("mvn").onclick = () => moveToPage(1);
+
+/* Dragging Objects inside canvas */
+page.addEventListener("pointerdown", e => {
+  const o = e.target.closest(".obj");
+  if (!o || e.target.closest(".dx")) return;
+  const r = o.getBoundingClientRect(), corner = e.clientX > r.right - 18 && e.clientY > r.bottom - 18;
+  if (!(e.target.closest(".mv") || (!corner && (o.classList.contains("shp") || o.querySelector(":scope>img"))))) return;
+  e.preventDefault();
+  if (o.querySelector(":scope>img")) pick(o.querySelector(":scope>img")); else pick(null);
+  selectObj(o, true);
+  switchPropTab("object");
+  const b = o.parentElement, x0 = e.clientX / z - o.offsetLeft, y0 = e.clientY / z - o.offsetTop;
+  const mv = v => {
+    o.style.left = Math.max(0, Math.min(b.clientWidth - o.offsetWidth, v.clientX / z - x0)) + "px";
+    o.style.top = Math.max(0, Math.min(b.clientHeight - o.offsetHeight, v.clientY / z - y0)) + "px";
+    syncObj();
+  };
+  const up = () => {
+    removeEventListener("pointermove", mv);
+    removeEventListener("pointerup", up);
+    syncObj();
+    save();
+  };
+  addEventListener("pointermove", mv);
+  addEventListener("pointerup", up);
+});
+
+page.addEventListener("click", e => {
+  const T = e.target, a = T.closest(".toc a");
+  if (a) {
+    e.preventDefault();
+    const h = document.getElementById(a.getAttribute("href").slice(1));
+    if (h) {
+      h.scrollIntoView({ behavior: "smooth", block: "center" });
+      h.classList.add("flash");
+      setTimeout(() => h.classList.remove("flash"), 1400);
+    }
+    return;
+  }
+  const dx = T.closest(".dx");
+  if (dx) {
+    const o = dx.parentElement;
+    if (o === selObj) selectObj(null);
+    o.remove();
+    save();
+    return;
+  }
+  const img = T.matches(".body img") ? T : null, o = T.closest(".obj");
+  if (img) {
+    pick(img);
+    switchPropTab("object");
+  } else {
+    pick(null);
+    if (o) {
+      selectObj(o, !T.closest('[contenteditable="true"]'));
+      switchPropTab("object");
+    } else {
+      selectObj(null);
+    }
+  }
+});
+
+/* ============================================================
+   TABLE CONTROLS
+   ============================================================ */
+const cell = () => {
+  const n = rng && E(rng.startContainer);
+  return n && n.closest("td,th");
+};
+function scopeCells(){
+  const c = cell(), t = c && c.closest("table");
+  if (!t) return [];
+  const sc = $("tsc").value;
+  if (sc == "table") return [...t.querySelectorAll("td,th")];
+  if (sc == "row") return [...c.parentElement.cells];
+  if (sc == "col") return [...t.rows].map(r => r.cells[c.cellIndex]).filter(Boolean);
+  return [c];
+}
+function tblOp(k){
+  const c = cell();
+  if (!c) return alert("Click inside a table cell first");
+  const tr = c.parentElement, t = c.closest("table"), i = c.cellIndex, rows = [...t.rows], blank = x => { x.innerHTML = "<br>"; };
+  if (k == "rowa" || k == "rowb") {
+    const n = tr.cloneNode(true);
+    [...n.cells].forEach(blank);
+    k == "rowa" ? tr.after(n) : tr.before(n);
+  } else if (k == "cola" || k == "colb") {
+    rows.forEach(r => {
+      const x = r.cells[i];
+      if (!x) return;
+      const n = document.createElement(x.tagName);
+      n.innerHTML = "<br>";
+      if (x.style.cssText) n.style.cssText = x.style.cssText;
+      k == "cola" ? x.after(n) : x.before(n);
+    });
+  } else if (k == "rowd") {
+    rows.length > 1 ? tr.remove() : t.remove();
+  } else if (k == "cold") {
+    t.rows[0].cells.length > 1 ? rows.forEach(r => r.cells[i] && r.cells[i].remove()) : t.remove();
+  } else if (k == "tbld") {
+    t.remove();
+  } else if (k == "hdr") {
+    [...tr.cells].forEach(x => {
+      const n = document.createElement(x.tagName == "TH" ? "td" : "th");
+      n.innerHTML = x.innerHTML;
+      n.style.cssText = x.style.cssText;
+      x.replaceWith(n);
+    });
+  }
+  save();
+}
+
+document.querySelectorAll("[data-tb]").forEach(btn => {
+  btn.onclick = () => tblOp(btn.dataset.tb);
+});
+$("tshade").oninput = e => { scopeCells().forEach(c => c.style.background = e.target.value); save(); };
+const tBorder = () => {
+  const w = +$("tbw").value || 0, col = $("tbc").value;
+  scopeCells().forEach(c => c.style.border = w ? `${w}px solid ${col}` : "none");
+  save();
+};
+$("tbc").oninput = tBorder;
+$("tbw").onchange = tBorder;
+$("tpd").onchange = e => { scopeCells().forEach(c => c.style.padding = (+e.target.value || 0) + "px"); save(); };
+$("tw").onchange = e => {
+  const c = cell(), t = c && c.closest("table");
+  if (t && e.target.value) { t.style.width = e.target.value; save(); }
+  e.target.value = "";
+};
+document.querySelectorAll("[data-tp]").forEach(btn => {
+  btn.onclick = () => {
+    const c = cell(), t = c && c.closest("table");
+    if (t) {
+      if (!t.style.width || t.style.width == "100%") t.style.width = "75%";
+      const k = btn.dataset.tp;
+      t.style.margin = k == "left" ? "12px auto 12px 0" : k == "right" ? "12px 0 12px auto" : "12px auto";
+      save();
+    }
+  };
+});
+
+/* ============================================================
+   PAGE SETUP, HEADER/FOOTER & COVER BINDINGS
+   ============================================================ */
+$("psz").onchange = e => {
+  if (e.target.value == "Custom") {
+    const w = +prompt("Width (mm)", 210), h = +prompt("Height (mm)", 297);
+    if (!(w > 0 && h > 0)) { syncPG(); return; }
+    PG.custom = [Math.round(w * MM), Math.round(h * MM)];
+  }
+  PG.size = e.target.value;
+  if (PG.size == "Slide 16:9") page.classList.add("land");
+  $("orient").textContent = page.classList.contains("land") ? "▭ Landscape" : "▯ Portrait";
+  applyPG();
+  save();
+};
+$("orient").onclick = () => {
+  page.classList.toggle("land");
+  $("orient").textContent = page.classList.contains("land") ? "▭ Landscape" : "▯ Portrait";
+  save();
+};
+["mt", "mr", "mb", "ml", "hh", "fh"].forEach(k => {
+  $(k).onchange = e => { PG[k] = Math.max(0, +e.target.value || 0); applyPG(); save(); };
+});
+$("mgon").onclick = () => { PG.guides = !PG.guides; applyPG(); save(); };
+
+$("logob").onclick = () => $("logoin").click();
+$("nologo").onclick = () => { HF.logo = ""; HF.custom = true; renderHF(); save(); };
+$("logoin").onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { HF.logo = r.result; HF.custom = true; renderHF(); save(); };
+  r.readAsDataURL(f);
+};
+[["hfl", "hl"], ["ffl", "fl"]].forEach(([i, k]) => $(i).oninput = e => { HF[k] = e.target.value; HF.custom = true; renderHF(); save(); });
+[["hfh", "h"], ["hff", "f"], ["hfp", "pn"]].forEach(([i, k]) => $(i).onchange = e => { HF[k] = e.target.checked; renderHF(); save(); });
+
+/* Cover Options */
+$("cvon-check").onchange = e => { CV.on = e.target.checked; applyCV(); toc(); save(); };
+$("cvlg-check").onchange = e => { CV.lg = e.target.checked; applyCV(); save(); };
+$("cvbg").oninput = e => { CV.bg = e.target.value; CV.img = ""; applyCV(); save(); };
+$("cvtx").oninput = e => { CV.tx = e.target.value; applyCV(); save(); };
+$("cvclr").onclick = () => { CV.bg = CV.img = ""; applyCV(); save(); };
+$("cvreset").onclick = () => { Object.assign(CV, { bg: "", img: "", tx: "", al: "", lg: true }); applyCV(); save(); };
+$("cvimg").onclick = () => $("cvimgin").click();
+$("cvimgin").onchange = e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { CV.img = r.result; applyCV(); save(); };
+  r.readAsDataURL(f);
+};
+
+/* TOC Updates */
+$("tocon").onchange = e => {
+  DOC.toc = e.target.checked;
+  page.classList.toggle("notoc", !DOC.toc);
+  tocSig = "";
+  toc();
+  info();
+  save();
+};
+$("toctr").onclick = () => { tocSig = ""; toc(); info(); };
+
+function toc(){
+  const hs = [...page.querySelectorAll(".pg .body h1,.pg .body h2,.pg .body h3")].filter(h => !h.parentElement.closest("h1,h2,h3") && !h.closest(".obj,.toc") && h.textContent.trim());
+  hs.forEach(h => { if (!h.id || page.querySelectorAll('[id="' + h.id + '"]').length > 1) h.id = "h" + Date.now().toString(36) + (tid++); });
+  if (!DOC.toc) return;
+  const fill = () => {
+    const sh = [...page.querySelectorAll(".sheet")].filter(visSheet);
+    return hs.map(h => `<a class="l${h.tagName[1]}" href="#${h.id}"><span>${esc(h.textContent)}</span><i></i><b>${sh.indexOf(h.closest(".sheet")) + 1}</b></a>`);
+  };
+  const sig = fill().join("") + "|" + pgSize().join() + PG.mt + "|" + PG.mb + "|" + PG.hh + "|" + PG.fh + "|" + CV.on;
+  if (sig === tocSig) return;
+  tocSig = sig;
+  let need = 1, per = 999, rows;
+  for (let pass = 0; pass < 3; pass++) {
+    let tps = [...page.querySelectorAll(".sheet.tocpg")];
+    while (tps.length < need) {
+      tps[tps.length - 1].insertAdjacentHTML("afterend", sheetHTML('<div class="toc"></div>', "tocpg"));
+      tps = [...page.querySelectorAll(".sheet.tocpg")];
+      renderHF();
+    }
+    while (tps.length > need) tps.pop().remove();
+    rows = fill();
+    const t0 = tps[0].querySelector(".toc");
+    t0.innerHTML = '<div class="tt">Table of Contents</div>' + (rows.join("") || "<em>Add headings to build table of contents.</em>");
+    t0.dataset.k = "";
+    const bd = tps[0].querySelector(".body"), lim = bd.clientHeight - parseFloat(getComputedStyle(bd).paddingBottom) - 24, kids = [...t0.querySelectorAll("a")], fit = kids.filter(a => a.offsetTop + a.offsetHeight <= lim).length;
+    per = Math.max(1, fit || kids.length || 1);
+    const n2 = Math.max(1, Math.ceil(rows.length / per));
+    if (n2 == need) break;
+    need = n2;
+  }
+  rows = fill();
+  [...page.querySelectorAll(".sheet.tocpg")].forEach((s, i) => {
+    const t = s.querySelector(".toc"), h = `<div class="tt">Table of Contents${i ? " (continued)" : ""}</div>` + (rows.slice(i * per, (i + 1) * per).join("") || (i ? "" : "<em>Add headings to build table of contents.</em>"));
+    if (t.dataset.k != h) { t.innerHTML = h; t.dataset.k = h; }
+  });
+}
+
+/* ============================================================
+   PAGE BREAKS & REFLOW
+   ============================================================ */
+function pageBreak(){
+  const h = host();
+  if (!h || !h.closest(".pg")) return addNewPageAtEnd();
+  restore();
+  const b = h.closest(".body"), s = b.closest(".sheet");
+  document.execCommand("insertParagraph");
+  let nb = getSelection().anchorNode && E(getSelection().anchorNode);
+  while (nb && nb.parentElement !== b) nb = nb.parentElement;
+  if (!nb) return;
+  s.insertAdjacentHTML("afterend", sheetHTML());
+  renderHF();
+  const t = s.nextElementSibling, tb = t.querySelector(".body");
+  tb.innerHTML = "";
+  const mv = [];
+  for (let n = nb; n; n = n.nextSibling) mv.push(n);
+  mv.forEach(n => tb.appendChild(n));
+  const r = document.createRange();
+  r.selectNodeContents(nb);
+  r.collapse(true);
+  const sl = getSelection();
+  sl.removeAllRanges();
+  sl.addRange(r);
+  rng = r.cloneRange();
+  t.scrollIntoView({ behavior: "smooth", block: "center" });
+  toc();
+  save();
+}
+
+addEventListener("keydown", e => {
+  const c = e.ctrlKey || e.metaKey;
+  if (c && e.key == "Enter" && host()) { e.preventDefault(); pageBreak(); }
+});
+
+/* ============================================================
+   FILE IMPORT & EXPORT PIPELINE
+   ============================================================ */
+const CDN = "https://cdnjs.cloudflare.com/ajax/libs/";
+const ld = u => new Promise((r, j) => {
+  const s = document.createElement("script");
+  s.src = u;
+  s.onload = r;
+  s.onerror = j;
+  document.head.append(s);
+});
+
+async function zip(f){
+  if (!window.JSZip) await ld(CDN + "jszip/3.10.1/jszip.min.js");
+  return JSZip.loadAsync(await f.arrayBuffer());
+}
+const xml = s => new DOMParser().parseFromString(s, "text/xml");
+
+async function importFile(f){
+  const n = f.name.toLowerCase();
+  if (n.endsWith(".docx")) {
+    await ld(CDN + "mammoth/1.6.0/mammoth.browser.min.js");
+    const res = await mammoth.convertToHtml({ arrayBuffer: await f.arrayBuffer() });
+    return [clean(res.value)];
+  }
+  if (n.endsWith(".pptx")) return pptx(f);
+  if (n.endsWith(".pdf") || n.endsWith(".ai")) return pdf(f);
+  if (n.endsWith(".idml")) return idml(f);
+  if (n.endsWith(".rtf")) return [rtf(await f.text())];
+  if (n.endsWith(".indd")) throw new Error("Native .indd is a closed format. Export to .idml in InDesign first.");
+  const t = await readText(f);
+  if (/<pstyle:/.test(t)) return [ttxt(t)];
+  if (/\.html?$/.test(n) || /^\s*</.test(t)) return htm(t);
+  return [md(t)];
+}
+
+async function pptx(f){
+  const z = await zip(f), pg = [];
+  for (const k of Object.keys(z.files).filter(k => /^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a, b) => a.match(/\d+/) - b.match(/\d+/))) {
+    const x = xml(await z.file(k).async("string")), it = [];
+    [...x.getElementsByTagName("a:p")].forEach((p, i) => {
+      const runs = [...p.getElementsByTagName("a:r")].map(r => {
+        const t = ptx((r.getElementsByTagName("a:t")[0] || {}).textContent || "");
+        return t ? `<span>${t}</span>` : "";
+      }).join("");
+      if (runs) it.push(`<p>${runs}</p>`);
+    });
+    pg.push(it.join("") || "<p><br></p>");
+  }
+  return pg;
+}
+
+async function pdf(f){
+  await ld(CDN + "pdf.js/3.11.174/pdf.min.js");
+  const w = await (await fetch(CDN + "pdf.js/3.11.174/pdf.worker.min.js")).text();
+  pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(new Blob([w], { type: "text/javascript" }));
+  const d = await pdfjsLib.getDocument({ data: await f.arrayBuffer() }).promise, pg = [];
+  for (let i = 1; i <= d.numPages; i++) {
+    const c = await (await d.getPage(i)).getTextContent(), L = [];
+    c.items.forEach(it => {
+      if (it.str.trim()) L.push(`<p>${esc(it.str)}</p>`);
+    });
+    pg.push(L.join("") || "<p><br></p>");
+  }
+  return pg;
+}
+
+async function idml(f){
+  const z = await zip(f), pg = [];
+  for (const k of Object.keys(z.files).filter(k => /^Stories\/.*\.xml$/.test(k))) {
+    const o = [...xml(await z.file(k).async("string")).getElementsByTagName("ParagraphStyleRange")].map(r => {
+      const sp = [...r.getElementsByTagName("CharacterStyleRange")].map(c => {
+        return [...c.childNodes].map(n => n.nodeName == "Content" ? ptx(n.textContent) : "").join("");
+      }).join("");
+      return sp ? `<p>${sp}</p>` : "";
+    }).join("");
+    if (o) pg.push(o);
+  }
+  return [pg.join("") || "<p><br></p>"];
+}
+
+function rtf(t){
+  const cleanT = t.replace(/\\[a-z]+(-?\d+)? ?/gi, " ").replace(/[{}]/g, "");
+  return `<p>${esc(cleanT.slice(0, 10000))}</p>`;
+}
+function ttxt(t){
+  return t.split(/\r?\n/).filter(l => /^<pstyle:/.test(l)).map(l => {
+    const m = l.match(/^<pstyle:([^>]*)>(.*)$/);
+    return `<p>${esc(m[2])}</p>`;
+  }).join("");
+}
+async function readText(f){
+  const b = new Uint8Array(await f.arrayBuffer());
+  return b[0] == 255 && b[1] == 254 ? new TextDecoder("utf-16le").decode(b) : new TextDecoder().decode(b);
+}
+function htm(t){
+  const d = new DOMParser().parseFromString(t, "text/html"), sh = [...d.querySelectorAll(".sheet.pg .body")];
+  return sh.length ? sh.map(b => clean(b.innerHTML)) : [clean(d.body.innerHTML)];
+}
+
+const clean = h => {
+  const d = new DOMParser().parseFromString(h, "text/html");
+  d.querySelectorAll("script,iframe,object,link,meta,style").forEach(n => n.remove());
+  return d.body.innerHTML;
+};
+
+$("file").onchange = async e => {
+  const f = e.target.files[0];
+  e.target.value = "";
+  if (!f) return;
+  const n = f.name.toLowerCase();
+  $("impdlg").close();
+  try {
+    if (f.type.startsWith("image/")) {
+      const r = new FileReader();
+      r.onload = () => putImg(r.result);
+      r.readAsDataURL(f);
+      return;
+    }
+    if (n.endsWith(".json")) {
+      const d = JSON.parse(await f.text());
+      Object.assign(HF, d.hf || {});
+      Object.assign(PG, d.pg || {});
+      Object.assign(CV, d.cv || {});
+      Object.assign(DOC, d.doc || {});
+      if (d.st) { ST = d.st; buildSty(); }
+      page.classList.toggle("land", !!d.land);
+      setDoc(d.pages, d.cover, d.tpl, d.cobjs);
+      syncHF();
+    } else {
+      const pages = await importFile(f);
+      await handleImportedPages(pages);
+    }
+  } catch (x) {
+    alert("Could not import file: " + x.message);
+  }
+};
+
+const putImg = src => {
+  restore();
+  document.execCommand("insertHTML", false, `<img src="${src}" data-m="center" data-sp="12" style="width:60%;margin:12px auto"><p><br></p>`);
+  save();
+};
+$("addimg").onclick = () => { $("file").accept = "image/*"; $("file").click(); };
+
+/* Export Pipeline */
+function dl(n, t, d){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([d], { type: t }));
+  a.download = n;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 500);
+}
+const docCSS = () => [...document.styleSheets].flatMap(s => {
+  try { return [...s.cssRules]; } catch (e) { return []; }
+}).filter(r => r.selectorText && /#page|\.sheet|\.body|\.cv|\.cover|\.toc|\.hd|\.ft|\.logo|\.obj|\.shp|\.ot|\[data-f/.test(r.selectorText)).map(r => r.cssText).join("");
+
+const tidy = c => {
+  c.querySelectorAll(".mv,.dx").forEach(x => x.remove());
+  c.querySelectorAll(".sel,.osel").forEach(x => x.classList.remove("sel", "osel"));
+  return c;
+};
+function buildExportDoc(word){
+  const [W, H] = pgSize(), l = page.classList.contains("land");
+  let n = 0;
+  const sh = [...page.querySelectorAll(".sheet")].filter(visSheet).map(s => {
+    n++;
+    const c = tidy(s.cloneNode(true));
+    c.querySelectorAll("[contenteditable]").forEach(x => x.removeAttribute("contenteditable"));
+    const p = c.querySelector(".pn");
+    if (p) { p.textContent = "Page " + n; p.className = "pnx"; }
+    return c.outerHTML;
+  }).join("");
+  const css = docCSS() + `:root{--accent:#7b5cff;--accent2:#ff7a59}body{margin:0;background:#eee}.sheet{margin:0 auto 20px;${word?"height:auto;":""}}.pnx{margin-left:auto}@page{size:${W}px ${H}px;margin:0;mso-page-orientation:${l?"landscape":"portrait"}}@media print{body{background:#fff}.sheet{margin:0}}`;
+  return `<!DOCTYPE html><html xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>Document</title><link href="${FONTS}" rel="stylesheet"><style>${css}</style></head><body><div id="page"${l?' class="land"':""} style="${(page.getAttribute("style")||"").replace(/zoom:[^;]*;?/,"")}">${sh}</div></body></html>`;
+}
+
+function exportAs(v){
+  const [W, H] = pgSize();
+  if (v == "pdf") {
+    const s = document.createElement("style");
+    s.textContent = `@page{size:${W}px ${H}px;margin:0}`;
+    document.head.append(s);
+    print();
+    s.remove();
+  }
+  if (v == "doc") dl("document.doc", "application/msword", buildExportDoc(true));
+  if (v == "html") dl("document.html", "text/html", buildExportDoc(false));
+  if (v == "txt") dl("document.txt", "text/plain", [...page.querySelectorAll(".sheet")].filter(visSheet).map(s => s.querySelector(".body").innerText.replace(/[⠿✕]/g, "")).join("\n\n"));
+  if (v == "json") dl("project.json", "application/json", JSON.stringify(state()));
+}
+
+$("exp").onchange = e => {
+  const v = e.target.value;
+  e.target.value = "";
+  if (v == "all") {
+    ["html", "doc", "txt", "json"].forEach((f, i) => setTimeout(() => exportAs(f), i * 500));
+    setTimeout(() => exportAs("pdf"), 2500);
+  } else if (v) {
+    exportAs(v);
+  }
+};
+
+/* Auto-Save & State */
+const pagesOut = () => [...page.querySelectorAll(".sheet.pg")].map(s => {
+  const c = s.querySelector(".body").cloneNode(true);
+  c.querySelectorAll(".sel,.osel").forEach(x => x.classList.remove("sel", "osel"));
+  return { h: c.innerHTML, a: s.dataset.auto ? 1 : 0 };
+});
+const coverOut = () => {
+  const x = {};
+  page.querySelectorAll(".cover [data-f]").forEach(e => x[e.dataset.f] = e.innerHTML);
+  return x;
+};
+const coverObjs = () => [...page.querySelectorAll(".cover .body .obj")].map(o => o.outerHTML.replace(/ osel/g, "")).join("");
+const state = () => ({
+  tpl: cur,
+  cover: coverOut(),
+  cobjs: coverObjs(),
+  pages: pagesOut(),
+  hf: HF,
+  pg: PG,
+  cv: CV,
+  doc: DOC,
+  st: ST,
+  land: page.classList.contains("land")
+});
+
+function save(){
+  if ($("tocon").checked) toc();
+  clearTimeout(tm);
+  $("saved").textContent = "Saving…";
+  tm = setTimeout(() => {
+    if ($("tocon").checked) toc();
+    info();
+    store("ap_doc3", JSON.stringify(state()));
+    $("saved").textContent = "Saved " + new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  }, 700);
+}
+page.addEventListener("input", save);
+
+/* Zoom and Fullscreen */
+function zoom(v){
+  z = Math.max(0.3, Math.min(2.5, v));
+  page.style.zoom = z;
+  $("zl").textContent = Math.round(z * 100) + "%";
+}
+$("btn-zi").onclick = () => zoom(z + 0.1);
+$("btn-zo").onclick = () => zoom(z - 0.1);
+$("btn-zf").onclick = () => zoom(($("desk").clientWidth - 60) / pgSize()[0]);
+$("desk").addEventListener("wheel", e => {
+  if (e.ctrlKey) {
+    e.preventDefault();
+    zoom(z - e.deltaY * 0.002);
+  }
+}, { passive: false });
+
+$("btn-fs").onclick = () => {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+};
+$("btn-mk").onclick = () => {
+  page.classList.toggle("marks");
+  $("btn-mk").classList.toggle("on", page.classList.contains("marks"));
+};
+
+const visSheet = s => (CV.on || !s.classList.contains("cover")) && (DOC.toc || !s.classList.contains("tocpg"));
+function posUpdate(){
+  const sh = rng && E(rng.startContainer) && E(rng.startContainer).closest(".sheet");
+  if (!sh) return;
+  const all = [...page.querySelectorAll(".sheet")].filter(visSheet);
+  posTxt = "Page " + (all.indexOf(sh) + 1);
+  $("cursor-pos").textContent = "Cursor: " + posTxt;
+  info();
+}
+
+/* ============================================================
+   INITIALIZATION
+   ============================================================ */
+renderDesignCards();
+renderThemesList();
+buildSty();
+
+try {
+  const d = JSON.parse(load("ap_doc3"));
+  Object.assign(HF, d.hf);
+  Object.assign(PG, d.pg || {});
+  Object.assign(CV, d.cv || {});
+  Object.assign(DOC, d.doc || {});
+  syncHF();
+  page.classList.toggle("land", !!d.land);
+  $("orient").textContent = d.land ? "▭ Landscape" : "▯ Portrait";
+  setDoc(d.pages, d.cover, d.tpl, d.cobjs);
+  $("saved").textContent = "Restored";
+} catch (x) {
+  setDoc([
+    '<h1>Welcome to Adorepage Studio</h1><p>Start drafting your content right here, or select any of the high-impact designs from the left panel. AI tools at the top allow generating, rewriting and polishing on demand.</p><h2>Creative Flexibility</h2><p>All design templates, banners, posters, and flyers adapt dynamically to your chosen text.</p>'
+  ], { t: "Adorepage Studio", s: "Next-Generation Publishing & Design Suite", m: TP[0].cm }, 0);
+}
+
+syncPG();
+$("tocon").checked = DOC.toc;
+info();
+</script>
+</body>
+</html>
